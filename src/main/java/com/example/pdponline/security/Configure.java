@@ -34,7 +34,7 @@ public class Configure {
             if (user != null) {
                 return user;
             } else {
-                throw new NotFoundException(new ApiResponse(ResponseError.NOTFOUND("User topilmadi")));
+                throw new NotFoundException(ApiResponse.successResponse(ResponseError.NOTFOUND("User topilmadi")));
             }
         };
     }

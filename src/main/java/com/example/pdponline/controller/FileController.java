@@ -21,7 +21,7 @@ public class FileController {
     }
 
     @PostMapping(value = "/upload",consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse> uploadVideo(@RequestParam("file") MultipartFile file)
+    public ResponseEntity<ApiResponse<Long>> uploadVideo(@RequestParam("file") MultipartFile file)
     {
         return ResponseEntity.ok(videoFileService.saveFile(file));
     }
@@ -39,14 +39,14 @@ public class FileController {
 
 
     @PutMapping(value = "/update/{id}",consumes = {"multipart/form-data"})
-    public ResponseEntity<ApiResponse> updateFile(@PathVariable Long id, @RequestParam("file") MultipartFile file)
+    public ResponseEntity<ApiResponse<?>> updateFile(@PathVariable Long id, @RequestParam("file") MultipartFile file)
     {
         return ResponseEntity.ok(videoFileService.updateFile(id, file));
     }
 
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ApiResponse> deleteFile(@PathVariable Long id)
+    public ResponseEntity<ApiResponse<String>> deleteFile(@PathVariable Long id)
     {
         return ResponseEntity.ok(videoFileService.deleteFile(id));
     }

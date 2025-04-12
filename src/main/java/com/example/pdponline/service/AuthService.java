@@ -1,6 +1,7 @@
 package com.example.pdponline.service;
 
 import com.example.pdponline.entity.enums.Role;
+import com.example.pdponline.exception.RestException;
 import com.example.pdponline.payload.auth.AuthRegister;
 import com.example.pdponline.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -23,49 +24,43 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
 
 
-    public ApiResponse login(AuthLogin authLogin)
+    public ApiResponse<ResponseLogin> login(AuthLogin authLogin)
     {
-        User user = userRepository.findByPhoneNumber(authLogin.getPhoneNumber());
-        if (user == null) {
-            return new ApiResponse(ResponseError.NOTFOUND("User"));
-        }
-
+        User user = userRepository.findByPhoneNumber(authLogin.getPhoneNumber()).orElseThrow(
+                () -> RestException.restThrow(ResponseError.NOTFOUND("User"))
+        );
         if (!user.isEnabled()){
-            return new ApiResponse(ResponseError.ACCESS_DENIED());
+            throw RestException.restThrow(ResponseError.ACCESS_DENIED());
         }
 
         if (passwordEncoder.matches(authLogin.getPassword(), user.getPassword())) {
             String token = jwtProvider.generateToken(authLogin.getPhoneNumber());
             ResponseLogin responseLogin = new ResponseLogin(token, user.getRole().name(), user.getId());
-            return new ApiResponse(responseLogin);
+            return ApiResponse.successResponse(responseLogin);
         }
-
-        return new ApiResponse(ResponseError.PASSWORD_DID_NOT_MATCH());
+        throw RestException.restThrow(ResponseError.PASSWORD_DID_NOT_MATCH());
     }
 
-    public ApiResponse register(AuthRegister auth)
+    public ApiResponse<String> register(AuthRegister auth)
     {
 
-        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(auth.getPhoneNumber());
-        if (byPhoneNumber != null) {
-            return new ApiResponse(ResponseError.ALREADY_EXIST("Phone number"));
-        }
+        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(auth.getPhoneNumber())
+                .orElseThrow(() -> RestException.restThrow(ResponseError.ALREADY_EXIST("Phone number")));
+
 
         saveUser(auth, Role.ROLE_STUDENT);
-        return new ApiResponse("Success");
+        return ApiResponse.successResponse("Success");
     }
 
 
 
-    public ApiResponse forgotPassword(AuthLogin authLogin){
-        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(authLogin.getPhoneNumber());
-        if (byPhoneNumber == null) {
-            return new ApiResponse(ResponseError.NOTFOUND("USER"));
-        }
+    public ApiResponse<String> forgotPassword(AuthLogin authLogin){
+        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(authLogin.getPhoneNumber())
+                .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("USER")));
 
         byPhoneNumber.setPassword(passwordEncoder.encode(authLogin.getPassword()));
         userRepository.save(byPhoneNumber);
-        return new ApiResponse("Success");
+        return ApiResponse.successResponse("Success");
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.pdponline.controller;
 
 import com.example.pdponline.payload.auth.AuthRegister;
+import com.example.pdponline.payload.auth.ResponseLogin;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> logIn(
+    public ResponseEntity<ApiResponse<ResponseLogin>> logIn(
             @Valid @RequestBody AuthLogin authLogin
     ){
         return ResponseEntity.ok(authService.login(authLogin));
@@ -28,16 +29,15 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@Valid @RequestBody AuthRegister authRegister){
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AuthRegister authRegister){
         return ResponseEntity.ok(authService.register(authRegister));
     }
 
 
     @Operation(summary = "Parolni update qilish")
     @PutMapping("/forgot-password")
-    public ResponseEntity<ApiResponse> forgotPassword(@RequestBody AuthLogin authLogin){
-        ApiResponse apiResponse = authService.forgotPassword(authLogin);
-        return ResponseEntity.ok(apiResponse);
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody AuthLogin authLogin){
+        return ResponseEntity.ok(authService.forgotPassword(authLogin));
     }
 
 }

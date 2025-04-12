@@ -1,5 +1,6 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.exception.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -8,7 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import com.example.pdponline.entity.File;
-import com.example.pdponline.exception.NotFoundException;
 import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.res.ResFile;
@@ -33,12 +33,10 @@ public class FileService {
 //    private static final Path root= Paths.get("/root");
 
 
-    public ApiResponse saveFile(MultipartFile file)
+    public ApiResponse<Long> saveFile(MultipartFile file)
     {
         String director = checkingAttachmentType(file);
-        if (director == null) {
-            return new ApiResponse(ResponseError.NOTFOUND("Fayl yuklash uchun papka"));
-        }
+
 
         long millis = System.currentTimeMillis();
         Path resolve = root.resolve(director + "/" + millis  + "-" + file.getOriginalFilename());
@@ -52,9 +50,9 @@ public class FileService {
             videoFile.setSize(file.getSize());
             files = videoFileRepository.save(videoFile);
         }catch (IOException e){
-            throw new NotFoundException(new ApiResponse(ResponseError.NOTFOUND(e.getMessage())));
+            throw RestException.restThrow(ResponseError.NOTFOUND(e.getMessage()));
         }
-        return new ApiResponse(files.getId());
+        return ApiResponse.successResponse(files.getId());
     }
 
 
@@ -65,11 +63,11 @@ public class FileService {
             if (videoFileOptional.isPresent()) {
                 File videoFile = videoFileOptional.get();
                 if (videoFile.getFilepath() == null || videoFile.getFileName() == null || videoFile.getContentType() == null) {
-                    throw new NotFoundException(new ApiResponse(ResponseError.DEFAULT_ERROR("File data is missing")));
+                    throw RestException.restThrow(ResponseError.DEFAULT_ERROR("File data is missing"));
                 }
                 java.io.File file = new java.io.File(videoFile.getFilepath());
                 if (!file.exists()) {
-                    throw new NotFoundException(new ApiResponse(ResponseError.DEFAULT_ERROR("File not found")));
+                    throw RestException.restThrow(ResponseError.DEFAULT_ERROR("File not found"));
                 }
                 Resource resource = new UrlResource(file.toURI());
                 ResFile resFile = new ResFile();
@@ -81,15 +79,15 @@ public class FileService {
                 resFile.setHeaders(headers);
                 return resFile;
             }
-            throw new NotFoundException(new ApiResponse(ResponseError.NOTFOUND("File not found")));
+            throw RestException.restThrow(ResponseError.NOTFOUND("File not found"));
         } catch (IOException e) {
-            throw new NotFoundException(new ApiResponse(ResponseError.DEFAULT_ERROR(e.getMessage())));
+            throw RestException.restThrow(ResponseError.DEFAULT_ERROR(e.getMessage()));
         }
     }
 
 
     //    update
-    public ApiResponse updateFile(Long id, MultipartFile file)
+    public ApiResponse<?> updateFile(Long id, MultipartFile file)
     {
         try {
             Optional<File> existingVideoFile = videoFileRepository.findById(id);
@@ -100,9 +98,7 @@ public class FileService {
 
                 String filename = file.getOriginalFilename();
                 String director = checkingAttachmentType(file);
-                if (director == null) {
-                    return new ApiResponse(ResponseError.NOTFOUND("Fayl yuklash uchun papka"));
-                }
+
 
                 long millis = System.currentTimeMillis();
                 Path uploadPath = root.resolve(director + "/" + millis + "-" + file.getOriginalFilename());
@@ -120,21 +116,21 @@ public class FileService {
 
                     File file1;
                     file1 = videoFileRepository.save(videoFile);
-                    return new ApiResponse(file1.getId());
+                    return ApiResponse.successResponse(file1.getId());
                 }else {
-                    return new ApiResponse(ResponseError.NOTFOUND("File name"));
+                    return ApiResponse.successResponse(ResponseError.NOTFOUND("File name"));
                 }
             } else {
-                throw new NotFoundException(new ApiResponse(ResponseError.NOTFOUND("File")));
+                throw RestException.restThrow(ResponseError.NOTFOUND("File"));
             }
         }catch (IOException e){
-            throw  new NotFoundException(new ApiResponse(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik")));
+            throw  RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
         }
     }
 
 
     //delete file
-    public ApiResponse deleteFile(Long id)
+    public ApiResponse<String> deleteFile(Long id)
     {
         try {
             Optional<File> existingVideoFile = videoFileRepository.findById(id);
@@ -143,12 +139,12 @@ public class FileService {
                 Path filePath = Paths.get(videoFile.getFilepath());
                 Files.deleteIfExists(filePath);
                 videoFileRepository.delete(videoFile);
-                return new ApiResponse("Successfully deleted");
+                return ApiResponse.successResponse("Successfully deleted");
             } else {
                 throw new IOException("File not found");
             }
         }catch (IOException e){
-            throw  new NotFoundException(new ApiResponse(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik")));
+            throw  RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
         }
     }
 
@@ -164,7 +160,7 @@ public class FileService {
         } else if (checkFile(filename)) {
             return "files";
         }
-        return null;
+       throw RestException.restThrow(ResponseError.NOTFOUND("Fayl yuklash uchun papka"));
     }
 
 
