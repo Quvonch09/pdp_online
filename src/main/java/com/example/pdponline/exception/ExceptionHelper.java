@@ -61,7 +61,7 @@ public class ExceptionHelper {
             String code = codes[codes.length - 1];
             String errorMessage = error.getDefaultMessage() + "_" + code;
             FieldError fieldError = (FieldError) error;
-            errors.add(new ApiResponse<>.ErrorData(errorMessage, HttpStatus.BAD_REQUEST.value(), fieldError.getField()));
+            errors.add(new ApiResponse.ErrorData(errorMessage, HttpStatus.BAD_REQUEST.value(), fieldError.getField()));
         });
         return new ResponseEntity<>(ApiResponse.errorResponse(errors), HttpStatus.BAD_REQUEST);
     }
