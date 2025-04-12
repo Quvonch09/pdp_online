@@ -14,6 +14,8 @@ import com.example.pdponline.payload.auth.AuthLogin;
 import com.example.pdponline.payload.auth.ResponseLogin;
 import com.example.pdponline.repository.UserRepository;
 
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +46,10 @@ public class AuthService {
     public ApiResponse<String> register(AuthRegister auth)
     {
 
-        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(auth.getPhoneNumber())
-                .orElseThrow(() -> RestException.restThrow(ResponseError.ALREADY_EXIST("Phone number")));
-
-
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(auth.getPhoneNumber());
+        if(optionalUser.isPresent()){
+            throw RestException.restThrow(ResponseError.ALREADY_EXIST("Phone Number"));
+        }
         saveUser(auth, Role.ROLE_STUDENT);
         return ApiResponse.successResponse("Success");
     }
@@ -55,7 +57,7 @@ public class AuthService {
 
 
     public ApiResponse<String> forgotPassword(AuthLogin authLogin){
-        User byPhoneNumber = userRepository.findByPhoneNumberAndEnabledTrue(authLogin.getPhoneNumber())
+        User byPhoneNumber = userRepository.findByPhoneNumber(authLogin.getPhoneNumber())
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("USER")));
 
         byPhoneNumber.setPassword(passwordEncoder.encode(authLogin.getPassword()));

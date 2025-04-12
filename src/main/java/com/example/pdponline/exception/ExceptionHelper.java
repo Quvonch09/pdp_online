@@ -29,7 +29,7 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-;
+
 
 @RestControllerAdvice
 @Order(value = Integer.MIN_VALUE)

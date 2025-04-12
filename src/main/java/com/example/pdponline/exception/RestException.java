@@ -30,12 +30,6 @@ public class RestException extends RuntimeException {
         this.userMsg = userMsg;
         this.status = status;
     }
-    private RestException(ResponseError responseError, HttpStatus status) {
-        super(responseError.getMessage());
-        this.responseError = responseError;
-        this.status = status;
-    }
-
     private RestException(HttpStatus status, List<ApiResponse.ErrorData> errors) {
         this.status = status;
         this.errors = errors;
@@ -67,7 +61,7 @@ public class RestException extends RuntimeException {
     }
 
     public static RestException restThrow(ResponseError error) {
-        return new RestException(error, HttpStatus.BAD_REQUEST);
+        return new RestException(error.getMessage(),HttpStatus.BAD_REQUEST);
     }
 
     public static RestException restThrow(List<ApiResponse.ErrorData> errors, HttpStatus status) {
