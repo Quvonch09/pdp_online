@@ -4,7 +4,9 @@ import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.exception.RestException;
 import com.example.pdponline.payload.auth.AuthRegister;
 import com.example.pdponline.security.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.example.pdponline.entity.User;
@@ -24,24 +26,31 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final DeviceService deviceService;
 
 
-    public ApiResponse<ResponseLogin> login(AuthLogin authLogin)
-    {
+    @SneakyThrows
+    public ApiResponse<ResponseLogin> login(AuthLogin authLogin, HttpServletRequest request) {
         User user = userRepository.findByPhoneNumber(authLogin.getPhoneNumber()).orElseThrow(
                 () -> RestException.restThrow(ResponseError.NOTFOUND("User"))
         );
-        if (!user.isEnabled()){
+
+        if (!user.isEnabled()) {
             throw RestException.restThrow(ResponseError.ACCESS_DENIED());
         }
 
         if (passwordEncoder.matches(authLogin.getPassword(), user.getPassword())) {
             String token = jwtProvider.generateToken(authLogin.getPhoneNumber());
+
+            deviceService.handleLogin(request, user); // <-- BU YERDA
+
             ResponseLogin responseLogin = new ResponseLogin(token, user.getRole().name(), user.getId());
             return ApiResponse.successResponse(responseLogin);
         }
+
         throw RestException.restThrow(ResponseError.PASSWORD_DID_NOT_MATCH());
     }
+
 
     public ApiResponse<String> register(AuthRegister auth)
     {
