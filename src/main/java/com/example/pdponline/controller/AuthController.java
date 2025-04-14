@@ -3,6 +3,7 @@ package com.example.pdponline.controller;
 import com.example.pdponline.payload.auth.AuthRegister;
 import com.example.pdponline.payload.auth.ResponseLogin;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +23,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<ResponseLogin>> logIn(
-            @Valid @RequestBody AuthLogin authLogin
+            @Valid @RequestBody AuthLogin authLogin, HttpServletRequest request
     ){
-        return ResponseEntity.ok(authService.login(authLogin));
+        return ResponseEntity.ok(authService.login(authLogin, request));
     }
 
 
