@@ -1,5 +1,6 @@
 package com.example.pdponline.entity;
 
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,11 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Course {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class Course extends AbsEntity {
     @Column(nullable = false)
     private String name;
 
