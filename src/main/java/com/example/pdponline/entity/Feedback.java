@@ -24,6 +24,6 @@ public class Feedback {
 
     @Enumerated(EnumType.STRING)
     private FeedbackEnum feedbackEnum;
-
-    private Long userId;
+    @ManyToOne
+    private Lesson lesson;
 }
