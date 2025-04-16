@@ -32,7 +32,8 @@ public class SecurityConfig {
     @Value("${security.whitelist}")
     private String[] whiteList;
 
-
+    private final AuthEntryPoint authEntryPoint;
+    private final MyAccessDeniedHandler accessDeniedHandler;
     private final AuthenticationProvider jwtProvider;
     private final JwtFilter jwtFilter;
 
@@ -51,14 +52,19 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(jwtProvider)
+                .exceptionHandling(
+                        httpExceptionHandler -> {
+                            httpExceptionHandler.accessDeniedHandler(accessDeniedHandler);
+                            httpExceptionHandler.authenticationEntryPoint(authEntryPoint);
+                        }
+                )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource()
-    {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow credentials (cookies, authentication)

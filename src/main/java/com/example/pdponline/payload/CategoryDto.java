@@ -1,6 +1,8 @@
 package com.example.pdponline.payload;
 
 import com.example.pdponline.entity.enums.CategoryType;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,5 +15,5 @@ public record CategoryDto (
         CategoryType categoryType,
         LocalDateTime createdAt,
         List<MentorDto> mentors
-){
+) implements Serializable {
 }
