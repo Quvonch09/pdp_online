@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/courseBuy")
 @RequiredArgsConstructor
-
+public class CourseBuyController {
     private final CourseBuyService service;
 
     @GetMapping("/getByUserId")
