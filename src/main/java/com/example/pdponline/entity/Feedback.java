@@ -1,6 +1,7 @@
 package com.example.pdponline.entity;
 
 import com.example.pdponline.entity.enums.FeedbackEnum;
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,10 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @Builder
 @Entity
-public class Feedback {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Feedback extends AbsEntity {
 
     private String feedback;
 
