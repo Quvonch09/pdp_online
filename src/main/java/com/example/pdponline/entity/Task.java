@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,8 +23,11 @@ public class Task {
     @Column(nullable = false)
     private String description;
 
-    @OneToOne
-    private File attachment;
+    @ManyToOne
+    private Lesson lesson;
+
+    @OneToMany
+    private List<File> attachments;
 
     private LocalDateTime startTime;
 

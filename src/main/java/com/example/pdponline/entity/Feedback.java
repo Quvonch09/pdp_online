@@ -22,6 +22,6 @@ public class Feedback extends AbsEntity {
 
     @Enumerated(EnumType.STRING)
     private FeedbackEnum feedbackEnum;
-
-    private Long userId;
+    @ManyToOne
+    private Lesson lesson;
 }
