@@ -2,11 +2,10 @@ package com.example.pdponline.entity;
 
 import com.example.pdponline.entity.enums.CategoryType;
 import com.example.pdponline.entity.template.AbsEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -28,4 +27,7 @@ public class Category extends AbsEntity {
 
     @Enumerated(EnumType.STRING)
     private CategoryType categoryType;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<User> mentors;
 }

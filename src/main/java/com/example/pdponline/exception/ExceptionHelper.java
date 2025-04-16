@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 @RestControllerAdvice
 @Order(value = Integer.MIN_VALUE)
 @RequiredArgsConstructor
@@ -122,7 +121,6 @@ public class ExceptionHelper {
                 HttpStatus.FORBIDDEN);
     }
 
-
     @ExceptionHandler(value = {MissingPathVariableException.class})
     public ResponseEntity<?> handleException(MissingPathVariableException ex) {
         ex.printStackTrace();
@@ -131,7 +129,6 @@ public class ExceptionHelper {
                 HttpStatus.NOT_FOUND);
     }
 
-
     @ExceptionHandler(value = {NoHandlerFoundException.class})
     public ResponseEntity<?> handleException(NoHandlerFoundException ex) {
         ex.printStackTrace();
@@ -139,7 +136,6 @@ public class ExceptionHelper {
                 ApiResponse.errorResponse(ex.getMessage(), 404),
                 HttpStatus.NOT_FOUND);
     }
-
 
     //METHOD XATO BO'LSA
     @ExceptionHandler(value = {HttpRequestMethodNotSupportedException.class})
@@ -158,7 +154,6 @@ public class ExceptionHelper {
                 HttpStatus.NOT_ACCEPTABLE);
     }
 
-
     //METHOD XATO BO'LSA
     @ExceptionHandler(value = {HttpMediaTypeNotSupportedException.class})
     public ResponseEntity<?> handleException(HttpMediaTypeNotSupportedException ex) {
@@ -168,7 +163,6 @@ public class ExceptionHelper {
                 HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-
     @ExceptionHandler(value = {ConversionNotSupportedException.class})
     public ResponseEntity<?> handleException(ConversionNotSupportedException ex) {
         ex.printStackTrace();
@@ -177,7 +171,6 @@ public class ExceptionHelper {
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-
     @ExceptionHandler(value = {HttpMessageNotWritableException.class})
     public ResponseEntity<?> handleException(HttpMessageNotWritableException ex) {
         ex.printStackTrace();
@@ -185,7 +178,6 @@ public class ExceptionHelper {
                 ApiResponse.errorResponse(ex.getMessage(), 500),
                 HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
 
     @ExceptionHandler(value = {Exception.class})
     public ResponseEntity<?> handleException(Exception ex) {
@@ -202,7 +194,6 @@ public class ExceptionHelper {
                 ApiResponse.errorResponse(ex.getMessage(), 503),
                 HttpStatus.SERVICE_UNAVAILABLE);
     }
-
 
     // FOYDALANUVCHI TOMONIDAN XATO SODIR BO'LGANDA
 //    @ExceptionHandler(value = {EmptyResultDataAccessException.class})

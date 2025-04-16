@@ -1,6 +1,5 @@
 package com.example.pdponline.controller;
 
-import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.User;
 import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.DeviceInfoDTO;

@@ -1,6 +1,11 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.entity.File;
 import com.example.pdponline.exception.RestException;
+import com.example.pdponline.payload.ApiResponse;
+import com.example.pdponline.payload.ResponseError;
+import com.example.pdponline.payload.res.ResFile;
+import com.example.pdponline.repository.FileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -8,11 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import com.example.pdponline.entity.File;
-import com.example.pdponline.payload.ApiResponse;
-import com.example.pdponline.payload.ResponseError;
-import com.example.pdponline.payload.res.ResFile;
-import com.example.pdponline.repository.FileRepository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,28 +28,27 @@ public class FileService {
     private final FileRepository videoFileRepository;
 
     //local uchun
-    private static final Path root= Paths.get("src/main/resources");
+    private static final Path root = Paths.get("src/main/resources");
     //server uchun
 //    private static final Path root= Paths.get("/root");
 
 
-    public ApiResponse<Long> saveFile(MultipartFile file)
-    {
+    public ApiResponse<Long> saveFile(MultipartFile file) {
         String director = checkingAttachmentType(file);
 
 
         long millis = System.currentTimeMillis();
-        Path resolve = root.resolve(director + "/" + millis  + "-" + file.getOriginalFilename());
+        Path resolve = root.resolve(director + "/" + millis + "-" + file.getOriginalFilename());
         File files;
         try {
-            Files.copy(file.getInputStream(), resolve,StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(file.getInputStream(), resolve, StandardCopyOption.REPLACE_EXISTING);
             File videoFile = new File();
             videoFile.setFileName(file.getOriginalFilename());
             videoFile.setFilepath(root.resolve(director + "/" + millis + "-" + file.getOriginalFilename()).toString());
             videoFile.setContentType(file.getContentType());
             videoFile.setSize(file.getSize());
             files = videoFileRepository.save(videoFile);
-        }catch (IOException e){
+        } catch (IOException e) {
             throw RestException.restThrow(ResponseError.NOTFOUND(e.getMessage()));
         }
         return ApiResponse.successResponse(files.getId());
@@ -86,9 +85,8 @@ public class FileService {
     }
 
 
-    //    update
-    public ApiResponse<?> updateFile(Long id, MultipartFile file)
-    {
+    //update
+    public ApiResponse<?> updateFile(Long id, MultipartFile file) {
         try {
             Optional<File> existingVideoFile = videoFileRepository.findById(id);
             if (existingVideoFile.isPresent()) {
@@ -106,7 +104,7 @@ public class FileService {
                     Files.createDirectories(uploadPath);
                 }
 
-                if(filename != null) {
+                if (filename != null) {
                     Path filePath = uploadPath.resolve(filename);
                     Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -117,21 +115,20 @@ public class FileService {
                     File file1;
                     file1 = videoFileRepository.save(videoFile);
                     return ApiResponse.successResponse(file1.getId());
-                }else {
+                } else {
                     return ApiResponse.successResponse(ResponseError.NOTFOUND("File name"));
                 }
             } else {
                 throw RestException.restThrow(ResponseError.NOTFOUND("File"));
             }
-        }catch (IOException e){
-            throw  RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
+        } catch (IOException e) {
+            throw RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
         }
     }
 
 
     //delete file
-    public ApiResponse<String> deleteFile(Long id)
-    {
+    public ApiResponse<String> deleteFile(Long id) {
         try {
             Optional<File> existingVideoFile = videoFileRepository.findById(id);
             if (existingVideoFile.isPresent()) {
@@ -143,14 +140,13 @@ public class FileService {
             } else {
                 throw new IOException("File not found");
             }
-        }catch (IOException e){
-            throw  RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
+        } catch (IOException e) {
+            throw RestException.restThrow(ResponseError.DEFAULT_ERROR("Fileni o'qishda xatolik"));
         }
     }
 
 
-    public String checkingAttachmentType(MultipartFile file)
-    {
+    public String checkingAttachmentType(MultipartFile file) {
         String filename = file.getOriginalFilename();
 
         assert filename != null;
@@ -160,15 +156,14 @@ public class FileService {
         } else if (checkFile(filename)) {
             return "files";
         }
-       throw RestException.restThrow(ResponseError.NOTFOUND("Fayl yuklash uchun papka"));
+        throw RestException.restThrow(ResponseError.NOTFOUND("Fayl yuklash uchun papka"));
     }
 
 
-    public boolean checkFile(String filename)
-    {
+    public boolean checkFile(String filename) {
         return filename.endsWith(".pdf") || filename.endsWith(".docx") ||
-                filename.endsWith(".pptx") || filename.endsWith(".zip") ||
-                filename.endsWith(".PDF") || filename.endsWith(".DOCX") ||
-                filename.endsWith(".PPTX") || filename.endsWith(".ZIP");
+               filename.endsWith(".pptx") || filename.endsWith(".zip") ||
+               filename.endsWith(".PDF") || filename.endsWith(".DOCX") ||
+               filename.endsWith(".PPTX") || filename.endsWith(".ZIP");
     }
 }

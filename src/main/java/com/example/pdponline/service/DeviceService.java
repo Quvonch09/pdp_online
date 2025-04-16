@@ -53,7 +53,6 @@ public class DeviceService {
         return ApiResponse.successResponse(list);
     }
 
-
     public DeviceInfoDTO convertDto(DeviceInfo deviceInfo) {
         return DeviceInfoDTO.builder()
                 .id(deviceInfo.getId())
