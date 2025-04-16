@@ -3,6 +3,7 @@ package com.example.pdponline.entity;
 
 import com.example.pdponline.entity.enums.CourseBuyType;
 import com.example.pdponline.entity.enums.PayType;
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class CourseBuy {
+public class CourseBuy extends AbsEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -1,5 +1,6 @@
 package com.example.pdponline.controller;
 
+import com.example.pdponline.entity.template.AbsEntity;
 import com.example.pdponline.payload.CourseBuyDTO;
 import com.example.pdponline.service.CourseBuyService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/courseBuy")
 @RequiredArgsConstructor
-public class CourseBuyController {
+public class CourseBuyController extends AbsEntity {
 
     private final CourseBuyService service;
 
