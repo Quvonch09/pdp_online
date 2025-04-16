@@ -21,6 +21,7 @@ public class CourseBuyController extends AbsEntity {
         return service.getByUserId(userId);
     }
 
+
     @PostMapping("/addCourseBuy")
     @Operation(summary = "Course sotib olish uchun!")
     public ResponseEntity<?> CourseBuy(@RequestBody CourseBuyDTO dto) {
