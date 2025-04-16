@@ -5,18 +5,25 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
 public class Notification extends AbsEntity {
 
     @Column(nullable = false)
-    private String text;
+    private String title;
+
+    @Column(nullable = false)
+    private String content;
 
     @ManyToOne
     private User student;
+
+    private boolean read;
+
 }
