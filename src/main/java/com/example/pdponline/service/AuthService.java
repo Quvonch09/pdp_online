@@ -1,20 +1,20 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.entity.User;
 import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.exception.RestException;
+import com.example.pdponline.payload.ApiResponse;
+import com.example.pdponline.payload.ResponseError;
+import com.example.pdponline.payload.auth.AuthLogin;
 import com.example.pdponline.payload.auth.AuthRegister;
+import com.example.pdponline.payload.auth.ResponseLogin;
+import com.example.pdponline.repository.UserRepository;
 import com.example.pdponline.security.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import com.example.pdponline.entity.User;
-import com.example.pdponline.payload.ApiResponse;
-import com.example.pdponline.payload.ResponseError;
-import com.example.pdponline.payload.auth.AuthLogin;
-import com.example.pdponline.payload.auth.ResponseLogin;
-import com.example.pdponline.repository.UserRepository;
 
 import java.util.Optional;
 
@@ -27,7 +27,6 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final DeviceService deviceService;
-
 
     @SneakyThrows
     public ApiResponse<ResponseLogin> login(AuthLogin authLogin, HttpServletRequest request) {
@@ -51,21 +50,17 @@ public class AuthService {
         throw RestException.restThrow(ResponseError.PASSWORD_DID_NOT_MATCH());
     }
 
-
-    public ApiResponse<String> register(AuthRegister auth)
-    {
+    public ApiResponse<String> register(AuthRegister auth) {
 
         Optional<User> optionalUser = userRepository.findByPhoneNumber(auth.getPhoneNumber());
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             throw RestException.restThrow(ResponseError.ALREADY_EXIST("Phone Number"));
         }
         saveUser(auth, Role.ROLE_STUDENT);
         return ApiResponse.successResponse("Success");
     }
 
-
-
-    public ApiResponse<String> forgotPassword(AuthLogin authLogin){
+    public ApiResponse<String> forgotPassword(AuthLogin authLogin) {
         User byPhoneNumber = userRepository.findByPhoneNumber(authLogin.getPhoneNumber())
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("USER")));
 
@@ -74,10 +69,7 @@ public class AuthService {
         return ApiResponse.successResponse("Success");
     }
 
-
-
-    private void saveUser(AuthRegister auth, Role role)
-    {
+    private void saveUser(AuthRegister auth, Role role) {
         User user = User.builder()
                 .firstName(auth.getFirstName())
                 .lastName(auth.getLastName())
