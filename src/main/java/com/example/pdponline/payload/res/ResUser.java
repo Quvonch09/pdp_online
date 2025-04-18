@@ -17,5 +17,5 @@ public class ResUser {
 
     private String password;
 
-    private Long imgId;
+    private String imgUrl;
 }

@@ -46,11 +46,10 @@ public class UserService {
 
         boolean phoneChanged = !user.getPhoneNumber().equals(resUser.getPhoneNumber());
 
-        File file = fileRepository.findById(resUser.getImgId()).orElse(null);
 
         user.setFirstName(resUser.getFirstName());
         user.setLastName(resUser.getLastName());
-        user.setImg(file);
+        user.setImgUrl(resUser.getImgUrl());
         user.setPhoneNumber(resUser.getPhoneNumber());
 
         if (resUser.getPassword() != null && !resUser.getPassword().isEmpty()) {
@@ -108,7 +107,7 @@ public class UserService {
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().name())
-                .imgId(user.getImg() != null ? user.getImg().getId() : null)
+                .imgId(user.getImgUrl() != null ? user.getImgUrl() : null)
                 .build();
     }
 }
