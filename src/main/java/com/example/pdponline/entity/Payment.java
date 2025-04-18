@@ -5,8 +5,6 @@ import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,14 +15,17 @@ public class Payment extends AbsEntity {
 
     @Column(nullable = false)
     private Long userId;
+//
+//    @JoinColumn(nullable = false)
+//    @ManyToOne
+//    private Transaction transactionId;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private PayType payType;
 
     @Column(nullable = false)
-    @OneToMany
-    private List<Course> courses;
+    private Long moduleId;
 
     @Column(nullable = false)
     private Double summa;
@@ -32,7 +33,6 @@ public class Payment extends AbsEntity {
     @Column(nullable = false)
     private String reason;
 
-    private String promoCode;
-
-    private Double chegirma;
+    @ManyToOne
+    private PromoCode promoCode;
 }

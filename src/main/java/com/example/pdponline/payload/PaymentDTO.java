@@ -1,16 +1,10 @@
 package com.example.pdponline.payload;
 
-import lombok.*;
+import lombok.Builder;
 
-import java.util.List;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class PaymentDTO {
-    private List<Long> courseIdList;
-    private String payType;
-    private String promoCode;
+public record PaymentDTO(Long moduleId, Long userId, LocalDate payDate, double summa, String reason, String payType,
+                         double chegirma) {
 }

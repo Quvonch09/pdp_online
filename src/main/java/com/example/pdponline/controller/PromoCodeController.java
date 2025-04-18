@@ -21,7 +21,7 @@ public class PromoCodeController {
     private final PromoCodeService service;
 
     @PostMapping("/create")
-    @Operation(summary = "Yangi PromoCode qo'shish uchun")
+    @Operation(summary = "[SUPER_ADMIN] Yangi PromoCode qo'shish uchun")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ApiResponse<?> createPromoCode(@Valid @RequestBody PromoCodeReq req) {
         return service.createPromoCode(req);
@@ -34,28 +34,28 @@ public class PromoCodeController {
     }
 
     @GetMapping("/get/all")
-    @Operation(summary = "Barcha PromoCodelarni qaytaradi!")
+    @Operation(summary = "[SUPER_ADMIN] Barcha PromoCodelarni qaytaradi!")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<List<PromoCodeDTO>>> getAllPromoCodes() {
         return ResponseEntity.ok(service.getAllPromoCodes());
     }
 
-    @GetMapping("/get")
-    @Operation(summary = "promoCode bo'yicha DTO qaytaradi!")
+    @GetMapping("/get/byName")
+    @Operation(summary = "[SUPER_ADMIN] promoCode bo'yicha DTO qaytaradi!")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<PromoCodeDTO>> getPromoCodeByName(@RequestParam String promoCode) {
         return ResponseEntity.ok(service.getPromoCodeByName(promoCode));
     }
 
     @PutMapping("/update/{promoCodeId}")
-    @Operation(summary = "update qilish uchun")
+    @Operation(summary = "[SUPER_ADMIN] update qilish uchun")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<String>> updatePromoCode(@PathVariable Long promoCodeId, @Valid @RequestBody PromoCodeReq req) {
         return ResponseEntity.ok(service.updatePromoCode(promoCodeId, req));
     }
 
     @DeleteMapping("/delete/{promoCodeIde}")
-    @Operation(summary = "PromoCodeni Id bo'yicha o'chirish")
+    @Operation(summary = "[SUPER_ADMIN] PromoCodeni Id bo'yicha o'chirish")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<String>> deletePromoCode(@PathVariable Long promoCodeIde) {
         return ResponseEntity.ok(service.deletePromoCode(promoCodeIde));

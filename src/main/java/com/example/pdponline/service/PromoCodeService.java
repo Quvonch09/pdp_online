@@ -8,6 +8,7 @@ import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.PromoCodeReq;
 import com.example.pdponline.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -72,5 +73,20 @@ public class PromoCodeService {
         PromoCode promoCode = promoCodeRepository.findById(promoCodeIde).orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("PromoCode")));
         promoCodeRepository.delete(promoCode);
         return ApiResponse.successResponse("success!");
+    }
+
+    @Scheduled(cron = "0 0 1 * * *")
+    // Har kuni soat 01:00 da bir ishlaydi va promoCodelarni vaqti tugagan bo'lsa activeini false qilib qo'yadi
+    private void runEveryFiveSeconds() {
+        List<PromoCode> allByActive = promoCodeRepository.getAllByActive(true);
+        if (!allByActive.isEmpty()) {
+            allByActive.forEach(promoCode -> {
+                if (promoCode.getExpiryDate().isBefore(java.time.LocalDate.now())) {
+                    promoCode.setActive(false);
+                    promoCodeRepository.save(promoCode);
+                }
+            });
+        }
+
     }
 }

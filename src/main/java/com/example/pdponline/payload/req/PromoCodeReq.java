@@ -17,7 +17,7 @@ public record PromoCodeReq(
         @NotNull(message = "percentage bo'sh bo'lishi mumkin emas!")
         @Min(value = 0, message = "percentage 1 dan kichik bo'lishi mumkin emas!")
         @Max(value = 100, message = "percentage 100 dan katta bo'lishi mumkin emas!")
-        Integer percentage,
+        Double percentage,
         @NotNull(message = "expiryDate bo'sh bo'lishi mumkin emas!")
         LocalDate expiryDate) {
 }
