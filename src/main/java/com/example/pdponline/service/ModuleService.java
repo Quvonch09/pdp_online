@@ -26,7 +26,7 @@ public class ModuleService {
     private final ModuleRepository moduleRepository;
     private final CourseRepository courseRepository;
 
-    @CacheEvict(value = "modules", allEntries = true)
+//    @CacheEvict(value = "modules", allEntries = true)
     public ApiResponse<String> createModule(ModuleReq req) {
         if (moduleRepository.existsByName(req.name())) {
             log.warn("Module already exists: {}", req.name());
@@ -56,7 +56,7 @@ public class ModuleService {
         return ApiResponse.successResponseForMsg("Module added");
     }
 
-    @CacheEvict(value = "modules", allEntries = true)
+//    @CacheEvict(value = "modules", allEntries = true)
     public ApiResponse<String> updateModule(Long id, String name) {
         Module module = moduleRepository.findById(id)
                 .orElseThrow(() -> {
@@ -75,7 +75,7 @@ public class ModuleService {
         return ApiResponse.successResponse("Module updated");
     }
 
-    @CacheEvict(value = "modules", allEntries = true)
+//    @CacheEvict(value = "modules", allEntries = true)
     public ApiResponse<String> changeActive(Long id, boolean active) {
         Module module = moduleRepository.findById(id)
                 .orElseThrow(() -> {
@@ -89,7 +89,7 @@ public class ModuleService {
         return ApiResponse.successResponse("Module status changed");
     }
 
-    @Cacheable(value = "modules", key = "'course_' + #id + '_active_' + #active")
+//    @Cacheable(value = "modules", key = "'course_' + #id + '_active_' + #active")
     public ApiResponse<?> getByCourse(Long id, boolean active) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> {
@@ -106,7 +106,7 @@ public class ModuleService {
         return ApiResponse.successResponse(ModuleMapper.toDtoList(modules));
     }
 
-    @Cacheable(value = "modules", key = "#id")
+//    @Cacheable(value = "modules", key = "#id")
     public ApiResponse<?> getById(Long id) {
         Module module = moduleRepository.findById(id)
                 .orElseThrow(() -> {
