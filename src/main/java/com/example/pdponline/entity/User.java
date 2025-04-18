@@ -31,8 +31,7 @@ public class User extends AbsEntity implements UserDetails {
 
     private String password;
 
-    @OneToOne
-    private File img;
+    private String imgUrl;
 
     @Enumerated(EnumType.STRING)
     private Role role;

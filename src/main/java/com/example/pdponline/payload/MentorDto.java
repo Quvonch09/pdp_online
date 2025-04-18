@@ -10,7 +10,7 @@ public record MentorDto (
         Long id,
         String firstname,
         String lastname,
-        Long imgId,
+        String imgId,
         Role role
 ) implements Serializable {
 }
