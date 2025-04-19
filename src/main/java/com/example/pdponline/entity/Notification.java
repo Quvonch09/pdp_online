@@ -24,6 +24,9 @@ public class Notification extends AbsEntity {
     @ManyToOne
     private User student;
 
+    @ManyToOne
+    private DeviceInfo deviceInfo;
+
     @Column(nullable = false)
     private boolean read;
 

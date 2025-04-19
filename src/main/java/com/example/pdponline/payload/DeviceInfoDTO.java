@@ -24,4 +24,6 @@ public class DeviceInfoDTO {
     private LocalDateTime loginTime;
 
     private Long userId;
+
+    private boolean mainDevice;
 }
