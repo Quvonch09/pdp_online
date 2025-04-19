@@ -18,7 +18,7 @@ public class UserDTO {
 
     private String phoneNumber;
 
-    private Long imgId;
+    private String imgId;
 
     private String role;
 }

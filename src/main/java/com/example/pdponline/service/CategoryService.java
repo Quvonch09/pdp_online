@@ -112,7 +112,7 @@ public class CategoryService {
                         .id(mentor.getId())
                         .firstname(mentor.getFirstName())
                         .lastname(mentor.getLastName())
-                        .imgId(mentor.getImg() != null ? mentor.getImg().getId() : null)
+                        .imgId(mentor.getImgUrl() != null ? mentor.getImgUrl() : null)
                         .role(mentor.getRole())
                         .build()
         ).collect(Collectors.toList());
