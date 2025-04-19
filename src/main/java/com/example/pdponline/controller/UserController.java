@@ -8,6 +8,7 @@ import com.example.pdponline.payload.res.ResUser;
 import com.example.pdponline.security.CurrentUser;
 import com.example.pdponline.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/getMe")
     @Operation(summary = "Uzini profilini kurish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_TEACHER', 'ROLE_STUDENT', 'ROLE_TEACHER_ASSISTANT')")
-    public ResponseEntity<?> getMe(@CurrentUser User user) {
-        return ResponseEntity.ok(userService.getMe(user));
+    public ResponseEntity<?> getMe(@CurrentUser User user, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.getMe(request, user));
     }
 
 

@@ -1,5 +1,6 @@
 package com.example.pdponline.security;
 
+import com.example.pdponline.service.RedisTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,6 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
     public String sessionToken;
+    private final RedisTokenService redisTokenService;
 
 
     @Override
@@ -53,9 +55,13 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
             sessionToken = token;
+            Long deviceId;
 
             try {
-                if (jwtProvider.isTokenValid(token)) {
+
+                deviceId = jwtProvider.extractDeviceId(token);
+
+                if (redisTokenService.isTokenValid(deviceId,token)) {
                     String phoneNumber = jwtProvider.getPhoneNumberFromToken(token);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
 
@@ -68,6 +74,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
+
             } catch (Exception e) {
                 handleException(response, e.getMessage());
                 return;
