@@ -1,5 +1,6 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.Notification;
 import com.example.pdponline.entity.User;
 import com.example.pdponline.entity.enums.Role;
@@ -9,6 +10,7 @@ import com.example.pdponline.payload.IdList;
 import com.example.pdponline.payload.NotificationDTO;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.res.ResNotification;
+import com.example.pdponline.repository.DeviceInfoRepository;
 import com.example.pdponline.repository.NotificationRepository;
 import com.example.pdponline.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final DeviceInfoRepository deviceInfoRepository;
 
 
     public ApiResponse<String> adminSendNotificationAllStudents(ResNotification notificationDTO) {
@@ -43,6 +46,28 @@ public class NotificationService {
         }
         return ApiResponse.successResponse("Notification successfully sending");
     }
+
+
+    public ApiResponse<?> sendNotification(Long userId, Long targetDeviceId, ResNotification resNotification) {
+        User student = userRepository.findById(userId).orElseThrow(
+                () -> RestException.restThrow(ResponseError.NOTFOUND("Student"))
+        );
+
+        DeviceInfo device = deviceInfoRepository.findById(targetDeviceId).orElse(null);
+
+        Notification notification = Notification.builder()
+                .title(resNotification.getTitle())
+                .content(resNotification.getContent())
+                .student(student)
+                .deviceInfo(device)
+                .read(false)
+                .build();
+
+        notificationRepository.save(notification);
+
+        return ApiResponse.successResponse("Notification successfully sent");
+    }
+
 
 
 
@@ -95,6 +120,7 @@ public class NotificationService {
                 notification.getTitle(),
                 notification.getContent(),
                 notification.getStudent().getId(),
+                notification.getDeviceInfo().getId(),
                 notification.isRead(),
                 notification.getCreatedAt()
         );

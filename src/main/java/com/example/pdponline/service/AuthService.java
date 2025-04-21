@@ -1,5 +1,6 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.User;
 import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.exception.RestException;
@@ -8,6 +9,7 @@ import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.auth.AuthLogin;
 import com.example.pdponline.payload.auth.AuthRegister;
 import com.example.pdponline.payload.auth.ResponseLogin;
+import com.example.pdponline.repository.DeviceInfoRepository;
 import com.example.pdponline.repository.UserRepository;
 import com.example.pdponline.security.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,6 +18,10 @@ import lombok.SneakyThrows;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 
@@ -27,6 +33,8 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
     private final DeviceService deviceService;
+    private final RedisTokenService redisTokenService;
+    private final DeviceInfoRepository deviceInfoRepository;
 
     @SneakyThrows
     public ApiResponse<ResponseLogin> login(AuthLogin authLogin, HttpServletRequest request) {
@@ -38,10 +46,22 @@ public class AuthService {
             throw RestException.restThrow(ResponseError.ACCESS_DENIED());
         }
 
-        if (passwordEncoder.matches(authLogin.getPassword(), user.getPassword())) {
-            String token = jwtProvider.generateToken(authLogin.getPhoneNumber());
+        List<DeviceInfo> existingDevices = deviceInfoRepository.findAllByUserOrderByLoginTimeAsc(user);
+        if (existingDevices.size() >= 2){
+            throw RestException.restThrow(ResponseError.DEFAULT_ERROR("Faqat 2 ta qurilma orqali kirishingiz mumkin!!!"));
+        }
 
-            deviceService.handleLogin(request, user); // <-- BU YERDA
+
+        if (passwordEncoder.matches(authLogin.getPassword(), user.getPassword())) {
+
+            Long deviceId = deviceService.handleLogin(request, user);// <-- BU YERDA
+
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("deviceId", deviceId);
+
+            String token = jwtProvider.generateToken(claims, authLogin.getPhoneNumber());
+
+            redisTokenService.saveToken(deviceId, token, Duration.ofHours(1));
 
             ResponseLogin responseLogin = new ResponseLogin(token, user.getRole().name(), user.getId());
             return ApiResponse.successResponse(responseLogin);
@@ -60,6 +80,13 @@ public class AuthService {
         return ApiResponse.successResponse("Success");
     }
 
+
+    public ApiResponse<?> adminSaveUser(AuthRegister authRegister, Role role){
+        saveUser(authRegister, role);
+        return ApiResponse.successResponse("Success");
+    }
+
+
     public ApiResponse<String> forgotPassword(AuthLogin authLogin) {
         User byPhoneNumber = userRepository.findByPhoneNumber(authLogin.getPhoneNumber())
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("USER")));
@@ -76,6 +103,7 @@ public class AuthService {
                 .phoneNumber(auth.getPhoneNumber())
                 .password(passwordEncoder.encode(auth.getPassword()))
                 .role(role)
+                .enabled(true)
                 .build();
 
         userRepository.save(user);

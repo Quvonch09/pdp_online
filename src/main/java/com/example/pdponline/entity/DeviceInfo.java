@@ -29,6 +29,8 @@ public class DeviceInfo {
     @ManyToOne
     private User user;
 
+    private boolean main;
+
 
     public DeviceInfo(String deviceAgent, String browser, String os, String deviceType, LocalDateTime loginTime, User user) {
         this.deviceAgent = deviceAgent;

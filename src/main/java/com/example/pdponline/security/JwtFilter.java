@@ -1,5 +1,6 @@
 package com.example.pdponline.security;
 
+import com.example.pdponline.exception.RestException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -69,8 +70,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             } catch (Exception e) {
-                handleException(response, e.getMessage());
-                return;
+                throw RestException.restThrow(e.getMessage(), HttpStatus.UNAUTHORIZED);
             }
         }
         doFilter(request, response, filterChain);

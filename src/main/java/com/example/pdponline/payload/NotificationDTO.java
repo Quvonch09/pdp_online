@@ -15,6 +15,8 @@ public record NotificationDTO (
 
         Long userId,
 
+        Long deviceId,
+
         boolean read,
 
         LocalDateTime createdAt

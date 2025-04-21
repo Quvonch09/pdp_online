@@ -71,7 +71,43 @@ public class TaskService {
     }
 
     public ApiResponse<TaskDTO> getTask(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow(() ->
+                RestException.restThrow(ResponseError.NOTFOUND("Task")));
 
-        return null;
+        return ApiResponse.successResponse(parseToTaskDTO(task));
+    }
+
+
+    public ApiResponse<List<TaskDTO>> getByLessonId(Long lessonId) {
+        Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() ->
+                RestException.restThrow(ResponseError.NOTFOUND("Lesson")));
+        List<Task> tasks = taskRepository.findAllByLessonId(lesson.getId());
+        List<TaskDTO> taskDTOs = tasks.stream().map(this::parseToTaskDTO).toList();
+        return ApiResponse.successResponse(taskDTOs);
+    }
+
+    private TaskDTO parseToTaskDTO(Task task) {
+        List<Long> filesId = new ArrayList<>();
+
+        task.getAttachments().forEach(file -> {
+            filesId.add(file.getId());
+        });
+        return TaskDTO.builder()
+                .id(task.getId())
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .lessonId(task.getLesson().getId())
+                .attachments(filesId)
+                .starTime(task.getStartTime())
+                .ednTime(task.getEndTime())
+                .build();
+    }
+
+    public ApiResponse<String> deleteTask(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow(() ->
+                RestException.restThrow(ResponseError.NOTFOUND("Task")));
+        task.setDeleted(true);
+        taskRepository.save(task);
+        return ApiResponse.successResponse("Task deleted successfully");
     }
 }
