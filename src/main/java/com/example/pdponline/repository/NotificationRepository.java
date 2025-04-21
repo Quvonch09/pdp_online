@@ -10,5 +10,4 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Integer countAllByStudentIdAndReadIsFalse(Long userId);
 
-    long countBy
 }
