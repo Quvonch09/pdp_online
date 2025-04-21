@@ -10,7 +10,9 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,6 +42,8 @@ public class SupabaseService {
     private final RestTemplate restTemplate;
 
 
+    @Async
+    @CacheEvict(value = "files", allEntries = true)
     public String uploadFile(MultipartFile file, String fileName) throws IOException {
         String uniqueName = LocalDateTime.now() + "_" + fileName;
         String filePath = "uploads/" + uniqueName;
@@ -66,6 +70,7 @@ public class SupabaseService {
 
 
 
+    @CacheEvict(value = "files", allEntries = true)
     public String updateFile(String oldUrl, MultipartFile newFile) {
         try {
             String basePublicUrl = supabaseUrl + "/storage/v1/object/public/" + bucketName + "/";
