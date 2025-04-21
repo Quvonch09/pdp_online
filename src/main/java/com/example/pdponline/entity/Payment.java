@@ -1,38 +1,39 @@
 package com.example.pdponline.entity;
 
 import com.example.pdponline.entity.enums.PayType;
+import com.example.pdponline.entity.enums.PaymentStatus;
 import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
 
 @Entity
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Getter
-@Setter
 public class Payment extends AbsEntity {
-
-    @Column(nullable = false)
-    private Long userId;
-//
-//    @JoinColumn(nullable = false)
-//    @ManyToOne
-//    private Transaction transactionId;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private PayType payType;
-
-    @Column(nullable = false)
-    private Long moduleId;
-
-    @Column(nullable = false)
-    private Double summa;
-
-    @Column(nullable = false)
-    private String reason;
+    @ManyToOne
+    private User student;
 
     @ManyToOne
     private PromoCode promoCode;
+
+    @Column(nullable = false)
+    private Double originalAmount;
+
+    @Column(nullable = false)
+    private Double paidAmount;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private PayType payType;
+
+    @CreationTimestamp
+    private LocalDate payDate;
 }

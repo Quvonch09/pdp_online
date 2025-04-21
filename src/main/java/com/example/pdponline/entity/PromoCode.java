@@ -21,7 +21,7 @@ public class PromoCode extends AbsEntity {
     private String description;
 
     @Column(nullable = false)
-    private Double percentage;
+    private Integer percentage;
 
     private boolean active;
 

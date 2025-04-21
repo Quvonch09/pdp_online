@@ -1,5 +1,5 @@
 package com.example.pdponline.entity.enums;
 
-public enum TransactionStatus {
+public enum PaymentStatus {
     SUCCESS, FAILED,WAITING
 }

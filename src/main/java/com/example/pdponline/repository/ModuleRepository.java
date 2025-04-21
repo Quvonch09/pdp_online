@@ -8,6 +8,7 @@ import java.util.List;
 public interface ModuleRepository extends JpaRepository<Module,Long> {
     boolean existsByName(String name);
 
-    List<Module> findByCourseIdAndActive(Long courseId,boolean active);
-    Module getByCourse_Id(Long courseId);
+    List<Module> findByCourseIdAndActive(Long courseId, boolean active);
+
+    List<Module> findAllByIdInAndActiveTrue(List<Long> ids);
 }
