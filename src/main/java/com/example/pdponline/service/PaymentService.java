@@ -44,7 +44,7 @@ public class PaymentService {
                 Payment payment = paymentRepository.save(Payment.builder().summa(m.getPrice()).moduleId(m.getId()).payType(req.payType()).promoCode(null).reason("Module sotib olish!").userId(user.getId()).build());
                 studentValidModulesRepository.save(StudentValidModules.builder().moduleId(m.getId()).studentId(user.getId()).paymentId(payment.getId()).active(true).startDate(LocalDate.now()).endDate(LocalDate.now().plusYears(1)).build());
             }
-            return ApiResponse.successResponseForMsg("Module sotib olish!");
+            return ApiResponse.successResponseForMsg("Module sotib olindi");
         } else {
             //Agar kiritgan promoCode topilmasa Exeptionga otadi!
             PromoCode promoCode = promoCodeRepository.findByPromoCode(req.promoCode()).orElseThrow(
@@ -59,7 +59,7 @@ public class PaymentService {
                     Payment payment = paymentRepository.save(Payment.builder().summa(sum).moduleId(m.getId()).payType(req.payType()).promoCode(promoCode).reason("Module sotib olish! Chegirma bilan").userId(user.getId()).build());
                     studentValidModulesRepository.save(StudentValidModules.builder().moduleId(m.getId()).studentId(user.getId()).paymentId(payment.getId()).active(true).startDate(LocalDate.now()).endDate(LocalDate.now().plusYears(1)).build());
                 }
-                return ApiResponse.successResponseForMsg("Module sotib olish! Chegirma bilan");
+                return ApiResponse.successResponseForMsg("Module sotib olindi Chegirma bilan");
             } else {
 //                Agar promoCode active bo'lmasa Exeptionga otadi!
                 return ApiResponse.errorResponse("promoCode active emas!", 404);

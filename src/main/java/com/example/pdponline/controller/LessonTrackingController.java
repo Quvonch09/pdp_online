@@ -19,7 +19,7 @@ public class LessonTrackingController {
 
     @PostMapping("/createLessonTracking")
     @Operation(summary = "Darsni tugatish")
-    public ResponseEntity<ApiResponse<String>> createLessonTracking(@CurrentUser User user, @RequestBody LessonTrackingDTO lessonTrackingDTO) {
-        return ResponseEntity.ok(lessonTrackingService.createLessonTracking(user,lessonTrackingDTO));
+    public ResponseEntity<ApiResponse<?>> createLessonTracking(@CurrentUser User user, @RequestBody LessonTrackingDTO lessonTrackingDTO) {
+        return ResponseEntity.ok(lessonTrackingService.createLessonTracking(user, lessonTrackingDTO));
     }
 }
