@@ -25,8 +25,8 @@ public class Task extends AbsEntity {
     @ManyToOne
     private Lesson lesson;
 
-    @OneToMany
-    private List<File> attachments;
+    @ElementCollection
+    private List<String> attachments;
 
     private boolean deleted;
 
