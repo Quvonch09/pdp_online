@@ -47,12 +47,7 @@ public class UserService {
     }
 
 
-    public ApiResponse<?> updateUser(HttpServletRequest request, Long userId, ResUser resUser){
-
-        User user = userRepository.findById(userId).orElse(null);
-        if(user == null){
-            throw RestException.restThrow(ResponseError.NOTFOUND("User"));
-        }
+    public ApiResponse<?> updateUser(HttpServletRequest request, User user, ResUser resUser){
 
         boolean phoneChanged = !user.getPhoneNumber().equals(resUser.getPhoneNumber());
 

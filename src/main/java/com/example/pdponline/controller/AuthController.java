@@ -1,10 +1,12 @@
 package com.example.pdponline.controller;
 
+import com.example.pdponline.entity.User;
 import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.auth.AuthLogin;
 import com.example.pdponline.payload.auth.AuthRegister;
 import com.example.pdponline.payload.auth.ResponseLogin;
+import com.example.pdponline.security.CurrentUser;
 import com.example.pdponline.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,7 +30,6 @@ public class AuthController {
     }
 
 
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @Operation(summary = "Super Admin user qushish uchun")
     @PostMapping("/saveUser")
     public ResponseEntity<ApiResponse<?>> adminSaveUser(@RequestBody AuthRegister authRegister, @RequestParam Role role) {

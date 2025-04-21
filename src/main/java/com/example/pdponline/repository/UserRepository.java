@@ -30,7 +30,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = """
 select u.* from users u where
-        (:keyword IS NULL OR LOWER(u.first_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and
+        (:keyword IS NULL OR LOWER(u.first_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) or
         (:keyword IS NULL OR LOWER(u.last_name) LIKE LOWER(CONCAT('%', :keyword, '%'))) and
         (:phoneNumber IS NULL OR LOWER(u.phone_number) LIKE LOWER(CONCAT('%', :phoneNumber, '%')))and
         (:role IS NULL OR u.role = :role) order by u.created_at desc
