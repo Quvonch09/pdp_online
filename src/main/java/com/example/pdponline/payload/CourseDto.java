@@ -10,5 +10,5 @@ public record CourseDto(
     String categoryName,
     boolean active,
     LocalDateTime createdAt
-)implements Serializable {
+) implements Serializable {
 }

@@ -9,10 +9,7 @@ import java.util.List;
 
 @Builder
 public record PaymentReq(
-        @NotNull(message = "module id bo'sh bo'lishi mumkin emas!")
-        List<Long> moduleIdList,
-        @DefaultValue("PAYme")
-        PayType payType,
+        List<Long> moduleIds,
         String promoCode
 ) {
 }
