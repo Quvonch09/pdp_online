@@ -3,6 +3,8 @@ package com.example.pdponline.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,11 +16,10 @@ public class LessonAttachments {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String url;
+    @ElementCollection
+    private List<String> url;
 
     @ManyToOne
     private Lesson lesson;
 
-    @OneToOne
-    private File file;
 }

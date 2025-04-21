@@ -25,20 +25,24 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<ResponseLogin>> logIn(@Valid @RequestBody AuthLogin authLogin, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<ResponseLogin>> logIn(@Valid @RequestBody AuthLogin authLogin,
+                                                            HttpServletRequest request) {
         return ResponseEntity.ok(authService.login(authLogin, request));
     }
 
 
     @Operation(summary = "Super Admin user qushish uchun")
     @PostMapping("/saveUser")
-    public ResponseEntity<ApiResponse<?>> adminSaveUser(@RequestBody AuthRegister authRegister, @RequestParam Role role) {
-       return ResponseEntity.ok(authService.adminSaveUser(authRegister, role));
+    public ResponseEntity<ApiResponse<?>> adminSaveUser(@CurrentUser User user,
+                                                        @RequestBody AuthRegister authRegister,
+                                                        @RequestParam Role role) {
+       return ResponseEntity.ok(authService.adminSaveUser(user,authRegister, role));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AuthRegister authRegister) {
-        return ResponseEntity.ok(authService.register(authRegister));
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AuthRegister authRegister,
+                                                        @CurrentUser User user) {
+        return ResponseEntity.ok(authService.register(user, authRegister));
     }
 
     @Operation(summary = "Parolni update qilish")

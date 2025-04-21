@@ -29,13 +29,12 @@ public class TaskService {
         Lesson lesson = lessonRepository.findById(taskreq.getLessonId()).orElseThrow(() ->
                 RestException.restThrow(ResponseError.NOTFOUND("Lesson")));
 
-        List<File> files = getFiles(taskreq.getFilesId());
 
         Task task = Task.builder()
                 .title(taskreq.getTitle())
                 .description(taskreq.getDescription())
                 .lesson(lesson)
-                .attachments(files)
+                .attachments(taskreq.getFilesUrl())
                 .startTime(taskreq.getStartTime())
                 .endTime(taskreq.getEndTime())
                 .build();
@@ -55,20 +54,20 @@ public class TaskService {
         task.setDescription(taskReq.getDescription());
         task.setStartTime(taskReq.getStartTime());
         task.setEndTime(taskReq.getEndTime());
-        task.setAttachments(getFiles(taskReq.getFilesId()));
+        task.setAttachments(taskReq.getFilesUrl() != null ? taskReq.getFilesUrl() : null);
         taskRepository.save(task);
         return null;
     }
 
-    private List<File> getFiles(List<Long> filesId) {
-        List<File> files = new ArrayList<>();
-        if (!filesId.isEmpty()) {
-            filesId.forEach(fileId -> {
-                files.add(fileRepository.findById(fileId).get());
-            });
-        }
-        return files;
-    }
+//    private List<File> getFiles(List<Long> filesId) {
+//        List<File> files = new ArrayList<>();
+//        if (!filesId.isEmpty()) {
+//            filesId.forEach(fileId -> {
+//                files.add(fileRepository.findById(fileId).get());
+//            });
+//        }
+//        return files;
+//    }
 
     public ApiResponse<TaskDTO> getTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(() ->
@@ -87,17 +86,13 @@ public class TaskService {
     }
 
     private TaskDTO parseToTaskDTO(Task task) {
-        List<Long> filesId = new ArrayList<>();
 
-        task.getAttachments().forEach(file -> {
-            filesId.add(file.getId());
-        });
         return TaskDTO.builder()
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .lessonId(task.getLesson().getId())
-                .attachments(filesId)
+                .attachments(task.getAttachments() != null ? task.getAttachments() : null)
                 .starTime(task.getStartTime())
                 .ednTime(task.getEndTime())
                 .build();
