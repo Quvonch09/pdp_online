@@ -1,5 +1,6 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.File;
 import com.example.pdponline.entity.User;
 import com.example.pdponline.entity.enums.Role;
@@ -10,9 +11,11 @@ import com.example.pdponline.payload.UserDTO;
 import com.example.pdponline.payload.auth.ResponseLogin;
 import com.example.pdponline.payload.res.ResPageable;
 import com.example.pdponline.payload.res.ResUser;
+import com.example.pdponline.repository.DeviceInfoRepository;
 import com.example.pdponline.repository.FileRepository;
 import com.example.pdponline.repository.UserRepository;
 import com.example.pdponline.security.JwtProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,13 +30,18 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final FileRepository fileRepository;
+    private final DeviceInfoRepository deviceInfoRepository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
 
-    public ApiResponse<?> getMe(User user){
-        return ApiResponse.successResponse(covertDTO(user));
+    public ApiResponse<?> getMe(HttpServletRequest request, User user){
+        String userAgent = request.getHeader("User-Agent");
+        DeviceInfo deviceInfo = deviceInfoRepository
+                .findByUserAndDeviceAgent(user, userAgent);
+
+
+        return ApiResponse.successResponse(covertDTO(user, deviceInfo));
     }
 
 
@@ -46,11 +54,10 @@ public class UserService {
 
         boolean phoneChanged = !user.getPhoneNumber().equals(resUser.getPhoneNumber());
 
-        File file = fileRepository.findById(resUser.getImgId()).orElse(null);
 
         user.setFirstName(resUser.getFirstName());
         user.setLastName(resUser.getLastName());
-        user.setImg(file);
+        user.setImgUrl(resUser.getImgUrl());
         user.setPhoneNumber(resUser.getPhoneNumber());
 
         if (resUser.getPassword() != null && !resUser.getPassword().isEmpty()) {
@@ -85,7 +92,7 @@ public class UserService {
 
         List<UserDTO> userList = new ArrayList<>();
         for (User user : users) {
-            userList.add(covertDTO(user));
+            userList.add(covertDTO(user, null));
         }
 
         ResPageable resPageable = ResPageable.builder()
@@ -101,14 +108,15 @@ public class UserService {
 
 
 
-    public UserDTO covertDTO(User user){
+    public UserDTO covertDTO(User user, DeviceInfo deviceInfo){
         return UserDTO.builder()
                 .id(user.getId())
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .phoneNumber(user.getPhoneNumber())
                 .role(user.getRole().name())
-                .imgId(user.getImg() != null ? user.getImg().getId() : null)
+                .imgUrl(user.getImgUrl() != null ? user.getImgUrl() : null)
+                .deviceId(deviceInfo !=null ? deviceInfo.getId() : null)
                 .build();
     }
 }

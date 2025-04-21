@@ -26,6 +26,14 @@ public class NotificationController {
     }
 
 
+    @PostMapping("/{studentId}")
+    @Operation(summary = "Admin bitta studentga notification yuborish")
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
+    public ResponseEntity<ApiResponse<?>> sendNotificationOneStudent(@PathVariable Long studentId, @RequestBody ResNotification resNotification) {
+        return ResponseEntity.ok(notificationService.sendNotification(studentId,null, resNotification));
+    }
+
+
 
     @GetMapping("/my")
     @Operation(summary = "Barcha uziga kelgan notificationlarni kurish")

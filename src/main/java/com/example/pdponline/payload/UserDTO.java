@@ -1,6 +1,6 @@
 package com.example.pdponline.payload;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 @Getter
@@ -18,7 +18,10 @@ public class UserDTO {
 
     private String phoneNumber;
 
-    private Long imgId;
+    private String imgUrl;
 
     private String role;
+
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    private Long deviceId;
 }

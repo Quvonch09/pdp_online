@@ -2,36 +2,47 @@ package com.example.pdponline.service;
 
 import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.User;
+import com.example.pdponline.exception.RestException;
 import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.DeviceInfoDTO;
+import com.example.pdponline.payload.ResponseError;
+import com.example.pdponline.payload.res.ResNotification;
 import com.example.pdponline.repository.DeviceInfoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import ua_parser.Client;
 import ua_parser.Parser;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
 
     private final DeviceInfoRepository deviceInfoRepository;
+    private final RedisTokenService redisTokenService;
+    private final NotificationService notificationService;
 
-    public void handleLogin(HttpServletRequest request, User user) throws Exception {
+    @SneakyThrows
+    public Long handleLogin(HttpServletRequest request, User user) {
         String userAgent = request.getHeader("User-Agent");
+
         Parser parser = new Parser();
         Client client = parser.parse(userAgent);
 
-        if (!deviceInfoRepository.existsByUserAndDeviceAgent(user, userAgent)) {
-            List<DeviceInfo> devices = deviceInfoRepository.findAllByUserOrderByLoginTimeAsc(user);
+        List<DeviceInfo> existingDevices = deviceInfoRepository.findAllByUserOrderByLoginTimeAsc(user);
 
-            if (devices.size() >= 2) {
-                DeviceInfo oldest = devices.get(0);
-                deviceInfoRepository.delete(oldest);
-            }
+        if (deviceInfoRepository.existsByUserAndDeviceAgent(user, userAgent)) {
+            return deviceInfoRepository.findByUserAndDeviceAgent(user, userAgent).getId();
+        }
+
+        if (existingDevices.size() >= 2) {
+            return 0L;
+        }
 
             DeviceInfo newDevice = new DeviceInfo(
                     userAgent,
@@ -42,9 +53,31 @@ public class DeviceService {
                     user
             );
 
-            deviceInfoRepository.save(newDevice);
-        }
+            newDevice.setMain(existingDevices.isEmpty());
+
+
+            DeviceInfo savedDevice = deviceInfoRepository.save(newDevice);
+
+            if (!newDevice.isMain()) {
+                Optional<DeviceInfo> mainDeviceOpt = existingDevices.stream()
+                        .filter(DeviceInfo::isMain)
+                        .findFirst();
+
+                mainDeviceOpt.ifPresent(mainDevice -> {
+                    notificationService.sendNotification(
+                            user.getId(),
+                            mainDevice.getId(),
+                            ResNotification.builder()
+                                    .title("Bildirishnoma!")
+                                    .content("Siz " + newDevice.getDeviceAgent() + " qurilmasidan saytga kirdingiz")
+                                    .build()
+                    );
+                });
+            }
+            return savedDevice.getId();
     }
+
+
 
     public ApiResponse<List<DeviceInfoDTO>> getUserDevices(User user) {
         List<DeviceInfoDTO> list = deviceInfoRepository.findAllByUserOrderByLoginTimeAsc(user).stream()
@@ -52,6 +85,23 @@ public class DeviceService {
 
         return ApiResponse.successResponse(list);
     }
+
+    public ApiResponse<?> deleteDevice(Long deviceId){
+        DeviceInfo deviceInfo = deviceInfoRepository.findById(deviceId).orElseThrow(
+                () -> RestException.restThrow(ResponseError.NOTFOUND("Device"))
+        );
+
+        if (!deviceInfo.isMain()) {
+            deviceInfoRepository.delete(deviceInfo);
+
+            redisTokenService.removeToken(deviceId);
+
+            return ApiResponse.successResponse("Device removed and logged out");
+        }
+
+        return ApiResponse.successResponse("Main device don't delete");
+    }
+
 
     public DeviceInfoDTO convertDto(DeviceInfo deviceInfo) {
         return DeviceInfoDTO.builder()
@@ -62,6 +112,7 @@ public class DeviceService {
                 .deviceType(deviceInfo.getDeviceType())
                 .os(deviceInfo.getOs())
                 .browser(deviceInfo.getBrowser())
+                .mainDevice(deviceInfo.isMain())
                 .build();
     }
 }
