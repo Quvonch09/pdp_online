@@ -1,7 +1,9 @@
 package com.example.pdponline.entity;
 
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -10,12 +12,9 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
-public class Task {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Task extends AbsEntity {
 
     @Column(nullable = false)
     private String title;
@@ -28,6 +27,8 @@ public class Task {
 
     @OneToMany
     private List<File> attachments;
+
+    private boolean deleted;
 
     private LocalDateTime startTime;
 
