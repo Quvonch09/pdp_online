@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Service
@@ -24,6 +25,11 @@ public class PromoCodeService {
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final SecureRandom random = new SecureRandom();
 
+    /**
+     * promocode yaratish
+     * @param req promocode saqlash uchun request class
+     * @return promocode
+     */
     public ApiResponse<?> createPromoCode(PromoCodeReq req) {
         if (req.expiryDate().isBefore(LocalDate.now())) {
             log.error("Noto‘g‘ri expiryDate: {}", req.expiryDate());
@@ -32,7 +38,7 @@ public class PromoCodeService {
 
         String code;
         do {
-            code = generateRandomString();
+            code = String.valueOf(generateRandomString());
         } while (promoCodeRepository.existsByPromoCode(code));
 
         PromoCode promoCode = PromoCode.builder()
@@ -48,7 +54,13 @@ public class PromoCodeService {
         return ApiResponse.successResponse(saved);
     }
 
-
+    /**
+     *
+     * @param active active/inactive status
+     * @param text promocode text
+     * @param expiryDate promocode amal qilish muddati
+     * @return promocode list
+     */
     public ApiResponse<?> getPromoCodes(Boolean active,String text,LocalDate expiryDate){
         List<PromoCode> promoCodes = promoCodeRepository.search(active, text, expiryDate);
 
@@ -61,6 +73,11 @@ public class PromoCodeService {
         return ApiResponse.successResponse(promoCodes);
     }
 
+    /**
+     * promocode active sini false qilish
+     * @param id kerakli promocode id si
+     * @return promocode o'chirildi nomli response
+     */
     public ApiResponse<?> unActive(Long id){
         PromoCode promoCode = promoCodeRepository.findById(id)
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("Promokod")));
@@ -72,6 +89,9 @@ public class PromoCodeService {
         return ApiResponse.successResponseForMsg("Promokod o'chirildi");
     }
 
+    /**
+     * avtomatik muddati o'tgan promocode larni o'chirish
+     */
     @Transactional
     @Scheduled(cron = "0 0 0 * * *")
     @Async
@@ -80,12 +100,17 @@ public class PromoCodeService {
         log.info("Muddati o'tgan promo kodlar o'chirildi");
     }
 
-    public static String generateRandomString() {
-        StringBuilder sb = new StringBuilder(15);
+    /**
+     * tasodifiy string promocode generatsiya qilish
+     * @return 10 talik string
+     */
+    @Async
+    public CompletableFuture<String> generateRandomString() {
+        StringBuilder sb = new StringBuilder(10);
         for (int i = 0; i < 15; i++) {
             int index = random.nextInt(CHARACTERS.length());
             sb.append(CHARACTERS.charAt(index));
         }
-        return sb.toString();
+        return CompletableFuture.completedFuture(sb.toString());
     }
 }

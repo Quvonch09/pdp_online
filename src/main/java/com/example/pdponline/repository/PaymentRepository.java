@@ -35,4 +35,8 @@ public interface PaymentRepository extends JpaRepository<Payment,Long> {
             @Param("endAmount") Double endAmount,
             @Param("moduleIds") List<Long> moduleIds
     );
+
+    @Query("SELECT COALESCE(SUM(p.paidAmount), 0) FROM Payment p WHERE p.status = :status")
+    double getPaymentSum(@Param("status") PaymentStatus status);
+
 }

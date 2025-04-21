@@ -29,6 +29,13 @@ public class PaymentService {
     private final PromoCodeRepository promoCodeRepository;
     private final PaymentModuleRepository paymentModuleRepository;
 
+    /**
+     * payment saqlash
+     * @param student to'lov qilayotgan student
+     * @param req to'lov uchun reuqest malumotlar
+     * @param type to'lov turi (naqd yoki payme)
+     * @return oxirgi to'lanishi kerakli summa
+     */
     @Transactional
     public ApiResponse<?> buyModule(User student, PaymentReq req, PayType type) {
         List<Module> modules = moduleRepository.findAllByIdInAndActiveTrue(req.moduleIds());
@@ -51,17 +58,12 @@ public class PaymentService {
             paidPrice -= totalPrice * promoCode.getPercentage() / 100;
         }
 
-        if (req.amount() < paidPrice) {
-            log.error("To'lov summasi belgilangan summadan kam: {}",paidPrice);
-            throw RestException.restThrow(ResponseError.DEFAULT_ERROR("Summa yetarli emas"));
-        }
-
         Payment payment = paymentRepository.save(Payment.builder()
                 .originalAmount(totalPrice)
                 .paidAmount(paidPrice)
                 .payType(type)
                 .promoCode(promoCode)
-                .status(PaymentStatus.SUCCESS)
+                .status(PaymentStatus.WAITING)
                 .student(student)
                 .build());
         log.info("To'lov saqlandi: {}",payment.getId());
@@ -76,9 +78,39 @@ public class PaymentService {
                 .toList());
         log.info("{} ta modul sotib olindi",modules.size());
 
-        return ApiResponse.successResponseForMsg("Modullar sotib olindi");
+        return ApiResponse.successResponse(payment.getId(),"Sotib olish uchun summa");
     }
 
+    /**
+     * paymentni tasdiqlash
+     * @param paymentId o'zgaradigan payment idsi
+     * @param status response statusi
+     * @return oxirgi nusxa payment
+     */
+    public ApiResponse<?> verifyPayment(Long paymentId,PaymentStatus status){
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("Payment")));
+
+        payment.setStatus(status);
+        log.info("Payment status o'zgartirildi");
+        paymentRepository.save(payment);
+
+        return ApiResponse.successResponse(payment);
+    }
+
+    /**
+     * filtr asosida paymentlarni olish
+     * @param startDate vaqt oralig'i boshlanish
+     * @param endDate vaqt oralig'i tugash
+     * @param type naqd yoki payme
+     * @param status succes,failed,returned,waiting
+     * @param studentId to'lov qilgan student id
+     * @param promoCode promocode bo'yicha
+     * @param startAmount to'lov oralig'i boshlanish
+     * @param endAmount to'lov oralig'i tugash
+     * @param moduleIds modullar bo'yicha
+     * @return payment lar listi
+     */
     public ApiResponse<?> getPayments(
             LocalDate startDate,
             LocalDate endDate,

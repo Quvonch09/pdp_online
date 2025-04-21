@@ -26,7 +26,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final CategoryRepository categoryRepository;
 
-//    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
+    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
     public ApiResponse<?> createCourse(CourseReq courseReq) {
         log.info("Creating course with name: {}", courseReq.name());
 
@@ -51,7 +51,7 @@ public class CourseService {
         return ApiResponse.successResponse("Course added");
     }
 
-//    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
+    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
     public ApiResponse<?> updateCourse(Long id, String name) {
         Course course = getCourseOrThrow(id);
 
@@ -65,7 +65,7 @@ public class CourseService {
         return ApiResponse.successResponse("Course nomi yangilandi");
     }
 
-//    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
+    @CacheEvict(value = {"courseById", "coursesByCategory"}, allEntries = true)
     public ApiResponse<?> changeActive(Long id, boolean active) {
         Course course = getCourseOrThrow(id);
 
@@ -76,7 +76,7 @@ public class CourseService {
         return ApiResponse.successResponse("Active o'zgartirildi");
     }
 
-//    @Cacheable(value = "coursesByCategory", key = "#id + '_' + #active")
+    @Cacheable(value = "coursesByCategory", key = "#id + '_' + #active")
     public ApiResponse<?> getByCategory(Long id, boolean active) {
         log.info("Fetching courses by categoryId={} and active={}", id, active);
 
@@ -89,7 +89,7 @@ public class CourseService {
         return ApiResponse.successResponse(CourseMapper.toDtoList(courses));
     }
 
-//    @Cacheable(value = "courseById", key = "#id")
+    @Cacheable(value = "courseById", key = "#id")
     public ApiResponse<?> getCourse(Long id) {
         log.info("Fetching course by id: {}", id);
 

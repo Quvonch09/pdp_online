@@ -32,6 +32,15 @@ public class PaymentController {
         return ResponseEntity.ok(service.buyModule(user,req,type));
     }
 
+    @PutMapping("/verify/{id}")
+    @Operation(summary = "Payment ni tasdiqlash o'zgartirish")
+    public ResponseEntity<?> changeStatus(
+            @PathVariable Long id,
+            @RequestParam PaymentStatus status
+    ){
+        return ResponseEntity.ok(service.verifyPayment(id, status));
+    }
+
     @GetMapping("/get")
     @Operation(summary = "Paymentlarni filtrlab olish",description = "Student uchun paymentlar tarixi,Admin uchun paymentlarni hammasini ko'rish,filtrlash")
     public ResponseEntity<?> getPayments(

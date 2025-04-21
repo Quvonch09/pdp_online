@@ -106,7 +106,8 @@ public class CategoryService {
 //        return CompletableFuture.supplyAsync(() -> buildMentorDtos(mentors));
 //    }
 
-    private List<MentorDto> buildMentorDtos(List<User> mentors) {
+    @Async
+    protected List<MentorDto> buildMentorDtos(List<User> mentors) {
         return mentors.stream().map(mentor ->
                 MentorDto.builder()
                         .id(mentor.getId())
@@ -136,7 +137,8 @@ public class CategoryService {
         return list;
     }
 
-    private List<CategoryDto> toDtoListWithMentors(List<Category> categories) {
+    @Async
+    protected List<CategoryDto> toDtoListWithMentors(List<Category> categories) {
         return categories.stream()
                 .map(category -> CategoryMapper.toDto(buildMentorDtos(category.getMentors()), category))
                 .collect(Collectors.toList());

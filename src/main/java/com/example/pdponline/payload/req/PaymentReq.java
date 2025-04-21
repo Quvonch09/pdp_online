@@ -10,7 +10,6 @@ import java.util.List;
 @Builder
 public record PaymentReq(
         List<Long> moduleIds,
-        Double amount,
         String promoCode
 ) {
 }

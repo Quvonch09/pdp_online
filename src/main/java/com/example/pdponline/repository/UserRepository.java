@@ -38,4 +38,5 @@ select u.* from users u where
     Page<User> searchUsers(@Param("keyword") String keyword,
                            @Param("phoneNumber") String phoneNumber,
                            @Param("role") String role, Pageable pageable);
+
 }
