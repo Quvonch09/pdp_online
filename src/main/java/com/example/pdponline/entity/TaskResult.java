@@ -1,23 +1,29 @@
 package com.example.pdponline.entity;
 
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
-public class TaskResult {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(
+        name = "task_result",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"task_id", "student_id"})
+        }
+)
 
-    @OneToOne
+public class TaskResult extends AbsEntity {
+
+    @ManyToOne
     private User student;
 
-    @OneToOne
+    @ManyToOne
     private Task task;
 
     private int ball;
