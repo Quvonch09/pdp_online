@@ -29,11 +29,11 @@ public class UserController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateMe")
     @Operation(summary = "Uzini profilini tahrirlash uchun")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN', 'ROLE_TEACHER', 'ROLE_STUDENT', 'ROLE_TEACHER_ASSISTANT')")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody ResUser resUser, HttpServletRequest request) {
-        return ResponseEntity.ok(userService.updateUser(request,id, resUser));
+    public ResponseEntity<?> update(@CurrentUser User user, @RequestBody ResUser resUser, HttpServletRequest request) {
+        return ResponseEntity.ok(userService.updateUser(request,user, resUser));
     }
 
 

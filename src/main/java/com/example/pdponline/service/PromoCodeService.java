@@ -38,7 +38,7 @@ public class PromoCodeService {
 
         String code;
         do {
-            code = String.valueOf(generateRandomString());
+            code = generateRandomString().toString();
         } while (promoCodeRepository.existsByPromoCode(code));
 
         PromoCode promoCode = PromoCode.builder()
