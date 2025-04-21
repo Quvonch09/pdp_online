@@ -1,7 +1,6 @@
 package com.example.pdponline.controller;
 
 import com.example.pdponline.payload.ApiResponse;
-import com.example.pdponline.payload.PromoCodeDTO;
 import com.example.pdponline.payload.req.PromoCodeReq;
 import com.example.pdponline.service.PromoCodeService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,8 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/promoCode")
@@ -27,37 +25,23 @@ public class PromoCodeController {
         return service.createPromoCode(req);
     }
 
-    @GetMapping("/get/{promoCodeId}")
-    @Operation(summary = "PromoCode Id bo'yicha DTO qaytaradi")
-    public ResponseEntity<ApiResponse<PromoCodeDTO>> getPromoCode(@PathVariable Long promoCodeId) {
-        return ResponseEntity.ok(service.getPromoCodeById(promoCodeId));
+    @GetMapping("/get")
+    @Operation(summary = "SUPER_ADMIN,TEACHER promo kodlarni ko'rish",description = "Kiritilgan field bo'yicha search bo'ladi, Agar hammasi bo'sh kiritilsa barcha promokodlar qaytadi")
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
+    public ResponseEntity<?> getPromoCodes(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false)LocalDate expiryDate
+    ){
+        return ResponseEntity.ok(service.getPromoCodes(active, code, expiryDate));
     }
 
-    @GetMapping("/get/all")
-    @Operation(summary = "[SUPER_ADMIN] Barcha PromoCodelarni qaytaradi!")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<List<PromoCodeDTO>>> getAllPromoCodes() {
-        return ResponseEntity.ok(service.getAllPromoCodes());
+    @DeleteMapping("/delete/{id}")
+    @Operation(summary = "SUPER_ADMIN,TEACHER promokod ni o'chirish")
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
+    public ResponseEntity<?> deletePromoCode(
+            @PathVariable Long id
+    ){
+        return ResponseEntity.ok(service.unActive(id));
     }
-
-    @GetMapping("/get/byName")
-    @Operation(summary = "[SUPER_ADMIN] promoCode bo'yicha DTO qaytaradi!")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<PromoCodeDTO>> getPromoCodeByName(@RequestParam String promoCode) {
-        return ResponseEntity.ok(service.getPromoCodeByName(promoCode));
-    }
-
-    @PutMapping("/update/{promoCodeId}")
-    @Operation(summary = "[SUPER_ADMIN] update qilish uchun")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> updatePromoCode(@PathVariable Long promoCodeId, @Valid @RequestBody PromoCodeReq req) {
-        return ResponseEntity.ok(service.updatePromoCode(promoCodeId, req));
-    }
-
-    @DeleteMapping("/delete/{promoCodeIde}")
-    @Operation(summary = "[SUPER_ADMIN] PromoCodeni Id bo'yicha o'chirish")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<ApiResponse<String>> deletePromoCode(@PathVariable Long promoCodeIde) {
-        return ResponseEntity.ok(service.deletePromoCode(promoCodeIde));
-    }
-}
+ }

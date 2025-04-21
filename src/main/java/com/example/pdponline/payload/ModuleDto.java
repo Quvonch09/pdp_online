@@ -11,6 +11,6 @@ public record ModuleDto (
         Long courseId,
         double price,
         boolean active)
-    implements Serializable
+        implements Serializable
 {
 }

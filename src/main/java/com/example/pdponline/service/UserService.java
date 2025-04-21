@@ -3,6 +3,7 @@ package com.example.pdponline.service;
 import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.entity.File;
 import com.example.pdponline.entity.User;
+import com.example.pdponline.entity.enums.ChatStatus;
 import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.exception.RestException;
 import com.example.pdponline.payload.ApiResponse;
@@ -22,17 +23,18 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.time.Duration;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final DeviceInfoRepository deviceInfoRepository;
+    private final DeviceService deviceService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
+    private final RedisTokenService redisTokenService;
 
 
     public ApiResponse<?> getMe(HttpServletRequest request, User user){
@@ -45,7 +47,7 @@ public class UserService {
     }
 
 
-    public ApiResponse<?> updateUser(Long userId, ResUser resUser){
+    public ApiResponse<?> updateUser(HttpServletRequest request, Long userId, ResUser resUser){
 
         User user = userRepository.findById(userId).orElse(null);
         if(user == null){
@@ -70,7 +72,16 @@ public class UserService {
 
 
         if (phoneChanged) {
-            String token = jwtProvider.generateToken(save.getPhoneNumber());
+            Long deviceId = deviceService.handleLogin(request, user);// <-- BU YERDA
+
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("deviceId", deviceId);
+
+            String token = jwtProvider.generateToken(claims, save.getPhoneNumber());
+
+            redisTokenService.removeToken(deviceId);
+            redisTokenService.saveToken(deviceId, token, Duration.ofHours(1));
+
             ResponseLogin responseLogin = new ResponseLogin(token, save.getRole().name(), save.getId());
             return ApiResponse.successResponse(responseLogin);
         }
@@ -104,6 +115,26 @@ public class UserService {
                 .build();
 
         return ApiResponse.successResponse(resPageable);
+    }
+
+
+    public void onlineOffline(User user, boolean isActive) {
+        ChatStatus newStatus = isActive ? ChatStatus.ONLINE : ChatStatus.OFFLINE;
+        if (user.getChatStatus() != newStatus) {
+            user.setChatStatus(newStatus);
+            userRepository.save(user);
+        }
+    }
+
+
+    public List<User> searchForChat(String fullName, String phone, String roleName) {
+        List<User> users = userRepository.searchForChat(fullName, phone, roleName);
+        return users != null ? users : new ArrayList<>();  // Agar null bo‘lsa, bo‘sh list qaytarish
+    }
+
+    public User getUser(Long id) {
+        return userRepository.findById(id).orElse(null);
+
     }
 
 

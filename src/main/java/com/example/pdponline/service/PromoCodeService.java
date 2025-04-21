@@ -3,90 +3,114 @@ package com.example.pdponline.service;
 import com.example.pdponline.entity.PromoCode;
 import com.example.pdponline.exception.RestException;
 import com.example.pdponline.payload.ApiResponse;
-import com.example.pdponline.payload.PromoCodeDTO;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.PromoCodeReq;
 import com.example.pdponline.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
+import java.security.SecureRandom;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PromoCodeService {
     private final PromoCodeRepository promoCodeRepository;
+    private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final SecureRandom random = new SecureRandom();
 
+    /**
+     * promocode yaratish
+     * @param req promocode saqlash uchun request class
+     * @return promocode
+     */
     public ApiResponse<?> createPromoCode(PromoCodeReq req) {
-        if (req.expiryDate().isBefore(java.time.LocalDate.now()) || req.expiryDate().isEqual(java.time.LocalDate.now())) {
-            throw RestException.restThrow("amal qilish muddati xato!");
+        if (req.expiryDate().isBefore(LocalDate.now())) {
+            log.error("Noto‘g‘ri expiryDate: {}", req.expiryDate());
+            throw RestException.restThrow(ResponseError.DEFAULT_ERROR("Bugungi kundan oldin bo'lishi mumkin emas"));
         }
-        promoCodeRepository.findByPromoCode(req.promoCode()).ifPresent(promoCode -> {
-            throw RestException.restThrow("promoCode mavjud!");
-        });
-        promoCodeRepository.save(PromoCode.builder().promoCode(req.promoCode()).description(req.description()).expiryDate(req.expiryDate()).percentage(req.percentage()).active(true).build());
-        return ApiResponse.successResponse("success!");
 
+        String code;
+        do {
+            code = String.valueOf(generateRandomString());
+        } while (promoCodeRepository.existsByPromoCode(code));
+
+        PromoCode promoCode = PromoCode.builder()
+                .promoCode(code)
+                .description(req.description())
+                .percentage(req.percentage())
+                .active(true)
+                .expiryDate(req.expiryDate())
+                .build();
+
+        PromoCode saved = promoCodeRepository.save(promoCode);
+        log.info("Promo kod saqlandi: {}", saved.getPromoCode());
+        return ApiResponse.successResponse(saved);
     }
 
-    public ApiResponse<PromoCodeDTO> getPromoCodeById(Long promoCodeId) {
-        PromoCode promoCode = promoCodeRepository.findById(promoCodeId).orElseThrow(() ->
-                RestException.restThrow(ResponseError.NOTFOUND("PromoCode")));
-        return ApiResponse.successResponse(getParseToPromoCodeDTO(promoCode));
-    }
+    /**
+     *
+     * @param active active/inactive status
+     * @param text promocode text
+     * @param expiryDate promocode amal qilish muddati
+     * @return promocode list
+     */
+    public ApiResponse<?> getPromoCodes(Boolean active,String text,LocalDate expiryDate){
+        List<PromoCode> promoCodes = promoCodeRepository.search(active, text, expiryDate);
 
-    private PromoCodeDTO getParseToPromoCodeDTO(PromoCode promoCode) {
-        return PromoCodeDTO.builder().description(promoCode.getDescription()).expiryDate(promoCode.getExpiryDate()).promoCode(promoCode.getPromoCode()).percentage(promoCode.getPercentage()).active(promoCode.isActive()).build();
-    }
-
-    public ApiResponse<List<PromoCodeDTO>> getAllPromoCodes() {
-        return ApiResponse.successResponse(promoCodeRepository.findAll().stream()
-                .map(this::getParseToPromoCodeDTO)
-                .toList());
-    }
-
-    public ApiResponse<PromoCodeDTO> getPromoCodeByName(String promoCode) {
-        return ApiResponse.successResponse(getParseToPromoCodeDTO(promoCodeRepository.findByPromoCode(promoCode).orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("PromoCode")))));
-    }
-
-    public ApiResponse<String> updatePromoCode(Long promoCodeId, PromoCodeReq req) {
-        PromoCode promoCode = promoCodeRepository.findById(promoCodeId)
-                .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("PromoCode")));
-        promoCodeRepository.findByPromoCode(req.promoCode()).ifPresent(promoCode1 -> {
-            throw RestException.restThrow("promoCode mavjud!");
-        });
-
-        if (req.expiryDate().isBefore(java.time.LocalDate.now()) || req.expiryDate().isEqual(java.time.LocalDate.now())) {
-            throw RestException.restThrow("amal qilish muddati xato!");
+        if (promoCodes.isEmpty()) {
+            log.error("Promo kodlar topilmadi");
+            throw RestException.restThrow(ResponseError.NOTFOUND("Promo kodlar"));
         }
-        promoCode.setPromoCode(req.promoCode());
-        promoCode.setDescription(req.description());
-        promoCode.setExpiryDate(req.expiryDate());
-        promoCode.setPercentage(req.percentage());
-        promoCode.setActive(true);
+
+        log.info("Promo kodlar olindi. Soni: {}", promoCodes.size());
+        return ApiResponse.successResponse(promoCodes);
+    }
+
+    /**
+     * promocode active sini false qilish
+     * @param id kerakli promocode id si
+     * @return promocode o'chirildi nomli response
+     */
+    public ApiResponse<?> unActive(Long id){
+        PromoCode promoCode = promoCodeRepository.findById(id)
+                .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("Promokod")));
+
+        promoCode.setActive(false);
         promoCodeRepository.save(promoCode);
-        return ApiResponse.successResponse("success!");
+
+        log.info("promokod aktivi false qilindi");
+        return ApiResponse.successResponseForMsg("Promokod o'chirildi");
     }
 
-    public ApiResponse<String> deletePromoCode(Long promoCodeIde) {
-        PromoCode promoCode = promoCodeRepository.findById(promoCodeIde).orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("PromoCode")));
-        promoCodeRepository.delete(promoCode);
-        return ApiResponse.successResponse("success!");
+    /**
+     * avtomatik muddati o'tgan promocode larni o'chirish
+     */
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * *")
+    @Async
+    public void autoUnActive() {
+        promoCodeRepository.deactivateExpiredPromoCodes(LocalDate.now());
+        log.info("Muddati o'tgan promo kodlar o'chirildi");
     }
 
-    @Scheduled(cron = "0 0 1 * * *")
-    // Har kuni soat 01:00 da bir ishlaydi va promoCodelarni vaqti tugagan bo'lsa activeini false qilib qo'yadi
-    private void runEveryFiveSeconds() {
-        List<PromoCode> allByActive = promoCodeRepository.getAllByActive(true);
-        if (!allByActive.isEmpty()) {
-            allByActive.forEach(promoCode -> {
-                if (promoCode.getExpiryDate().isBefore(java.time.LocalDate.now())) {
-                    promoCode.setActive(false);
-                    promoCodeRepository.save(promoCode);
-                }
-            });
+    /**
+     * tasodifiy string promocode generatsiya qilish
+     * @return 10 talik string
+     */
+    @Async
+    public CompletableFuture<String> generateRandomString() {
+        StringBuilder sb = new StringBuilder(10);
+        for (int i = 0; i < 15; i++) {
+            int index = random.nextInt(CHARACTERS.length());
+            sb.append(CHARACTERS.charAt(index));
         }
-
+        return CompletableFuture.completedFuture(sb.toString());
     }
 }

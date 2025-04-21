@@ -69,7 +69,7 @@ public class SectionService {
         return ApiResponse.successResponse("Active o'zgartirildi");
     }
 
-    @Cacheable(value = "sections", key = "'module_' + #moduleId + '_active_' + #active")
+//    @Cacheable(value = "sections", key = "'module_' + #moduleId + '_active_' + #active")
     public ApiResponse<?> getByModule(Long moduleId, boolean active) {
         log.info("Fetching sections for moduleId: {} with active status: {}", moduleId, active);
 
@@ -85,7 +85,7 @@ public class SectionService {
         return ApiResponse.successResponse(SectionMapper.toDtoList(sections));
     }
 
-    @Cacheable(value = "section", key = "'section_' + #id")
+//    @Cacheable(value = "section", key = "'section_' + #id")
     public ApiResponse<?> getById(Long id) {
         log.info("Fetching section by id: {}", id);
 

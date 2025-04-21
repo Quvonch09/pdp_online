@@ -11,6 +11,8 @@ import com.example.pdponline.repository.DeviceInfoRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import ua_parser.Client;
 import ua_parser.Parser;
@@ -28,6 +30,7 @@ public class DeviceService {
     private final NotificationService notificationService;
 
     @SneakyThrows
+    @CacheEvict(value = "devices", allEntries = true)
     public Long handleLogin(HttpServletRequest request, User user) {
         String userAgent = request.getHeader("User-Agent");
 
@@ -79,6 +82,7 @@ public class DeviceService {
 
 
 
+    @Cacheable(value = "devices", key = "'user_' + #user")
     public ApiResponse<List<DeviceInfoDTO>> getUserDevices(User user) {
         List<DeviceInfoDTO> list = deviceInfoRepository.findAllByUserOrderByLoginTimeAsc(user).stream()
                 .map(this::convertDto).toList();

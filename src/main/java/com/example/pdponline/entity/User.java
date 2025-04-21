@@ -1,5 +1,6 @@
 package com.example.pdponline.entity;
 
+import com.example.pdponline.entity.enums.ChatStatus;
 import com.example.pdponline.entity.enums.Role;
 import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
@@ -39,6 +40,9 @@ public class User extends AbsEntity implements UserDetails {
     private int code;
 
     private boolean enabled;
+
+    @Enumerated(EnumType.STRING)
+    private ChatStatus chatStatus;
 
 
     @Override
