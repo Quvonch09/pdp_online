@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/task")
 @RequiredArgsConstructor
@@ -25,15 +27,28 @@ public class TaskController {
         return ResponseEntity.ok(taskService.saveTask(taskReq));
     }
 
-    @PostMapping("/update/{id}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<ApiResponse<String>> updateTask(@Valid @RequestBody TaskReq taskReq, @PathVariable Long id) {
         return ResponseEntity.ok(taskService.updateTask(id, taskReq));
     }
 
     @GetMapping("/get/{id}")
-    @Operation(summary = "id buyicha taskni olish")
+    @Operation(summary = "id orqali taskni olish")
     public ResponseEntity<ApiResponse<TaskDTO>> getById(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.getTask(id));
+    }
+
+    @GetMapping("/get-by-lesson/{lessonId}")
+    @Operation(summary = "Lesson orqali taskni olish")
+    public ResponseEntity<ApiResponse<List<TaskDTO>>> getByLessonId(@PathVariable Long lessonId) {
+        return ResponseEntity.ok(taskService.getByLessonId(lessonId));
+    }
+
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
+    public ResponseEntity<ApiResponse<String>> deleteTask(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.deleteTask(id));
+
     }
 }

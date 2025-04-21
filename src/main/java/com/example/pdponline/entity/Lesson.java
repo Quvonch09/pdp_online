@@ -1,20 +1,18 @@
 package com.example.pdponline.entity;
 
+import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.*;
 import jdk.jfr.Enabled;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @Entity
-public class Lesson {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+public class Lesson extends AbsEntity {
 
     @Column(nullable = false)
     private String name;
