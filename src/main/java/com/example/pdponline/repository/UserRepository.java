@@ -38,4 +38,10 @@ select u.* from users u where
     Page<User> searchUsers(@Param("keyword") String keyword,
                            @Param("phoneNumber") String phoneNumber,
                            @Param("role") String role, Pageable pageable);
+
+    @Query("select u from User u where (u.firstName like :fullName or u.phoneNumber = :phone) and u.role = :roleName")
+    List<User> searchForChat(@Param("fullName") String fullName,
+                             @Param("phone") String phone,
+                             @Param("roleName") String roleName);
+
 }

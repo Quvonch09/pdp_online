@@ -31,4 +31,7 @@ public class Chat extends AbsEntity {
 
     @ManyToOne
     private Chat replayChat;
+
+    @OneToOne
+    private Task task;
 }
