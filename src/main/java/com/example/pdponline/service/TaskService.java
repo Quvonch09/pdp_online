@@ -72,8 +72,9 @@ public class TaskService {
     public ApiResponse<TaskDTO> getTask(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(() ->
                 RestException.restThrow(ResponseError.NOTFOUND("Task")));
+        List<String> urls = taskRepository.findAllByTaskUrls(id);
 
-        return ApiResponse.successResponse(parseToTaskDTO(task));
+        return ApiResponse.successResponse(parseToTaskDTO(task, urls));
     }
 
 
@@ -81,18 +82,20 @@ public class TaskService {
         Lesson lesson = lessonRepository.findById(lessonId).orElseThrow(() ->
                 RestException.restThrow(ResponseError.NOTFOUND("Lesson")));
         List<Task> tasks = taskRepository.findAllByLessonId(lesson.getId());
-        List<TaskDTO> taskDTOs = tasks.stream().map(this::parseToTaskDTO).toList();
+        List<TaskDTO> taskDTOs = tasks.stream().map(
+                task -> parseToTaskDTO(task, taskRepository.findAllByTaskUrls(task.getId()))
+        ).toList();
         return ApiResponse.successResponse(taskDTOs);
     }
 
-    private TaskDTO parseToTaskDTO(Task task) {
+    private TaskDTO parseToTaskDTO(Task task, List<String> urls) {
 
         return TaskDTO.builder()
                 .id(task.getId())
                 .title(task.getTitle())
                 .description(task.getDescription())
                 .lessonId(task.getLesson().getId())
-                .attachments(task.getAttachments() != null ? task.getAttachments() : null)
+                .attachments(urls)
                 .starTime(task.getStartTime())
                 .ednTime(task.getEndTime())
                 .build();

@@ -92,7 +92,7 @@ public class UserService {
                                       int page, int size){
         Page<User> users = userRepository.searchUsers(keyword, phoneNumber, role.name(), PageRequest.of(page, size));
 
-        if (users.getTotalElements() == 0) {
+        if (users.getContent().isEmpty()) {
             throw RestException.restThrow(ResponseError.NOTFOUND("Users"));
         }
 

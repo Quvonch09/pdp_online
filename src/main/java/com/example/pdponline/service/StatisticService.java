@@ -24,9 +24,9 @@ public class StatisticService {
 
     @Cacheable(value = "statistic")
     public ApiResponse<?> ceoDashboard(){
-        long countTeachers = userRepository.findAllByRoleAndEnabledTrue(Role.ROLE_TEACHER).size();
-        long countStudent = userRepository.findAllByRoleAndEnabledTrue(Role.ROLE_STUDENT).size();
-        long countAssistantTeachers = userRepository.findAllByRoleAndEnabledTrue(Role.ROLE_TEACHER_ASSISTANT).size();
+        long countTeachers = userRepository.countAllByRoleAndEnabledTrue(Role.ROLE_TEACHER);
+        long countStudent = userRepository.countAllByRoleAndEnabledTrue(Role.ROLE_STUDENT);
+        long countAssistantTeachers = userRepository.countAllByRoleAndEnabledTrue(Role.ROLE_TEACHER_ASSISTANT);
         long countAllUsers = userRepository.count();
         double sumSuccessPayments = paymentRepository.getPaymentSum(PaymentStatus.SUCCESS);
         double sumFailedPayments = paymentRepository.getPaymentSum(PaymentStatus.FAILED);
