@@ -72,13 +72,13 @@ public class AuthService {
         throw RestException.restThrow(ResponseError.PASSWORD_DID_NOT_MATCH());
     }
 
-    public ApiResponse<String> register(User user,AuthRegister auth) {
+    public ApiResponse<String> register(AuthRegister auth) {
 
         Optional<User> optionalUser = userRepository.findByPhoneNumber(auth.getPhoneNumber());
         if (optionalUser.isPresent()) {
             throw RestException.restThrow(ResponseError.ALREADY_EXIST("Phone Number"));
         }
-        saveUser(user.getId(), auth, Role.ROLE_STUDENT);
+        saveUser(null, auth, Role.ROLE_STUDENT);
         return ApiResponse.successResponse("Success");
     }
 
@@ -102,7 +102,7 @@ public class AuthService {
         return ApiResponse.successResponse("Success");
     }
 
-    private void saveUser(Long userId,AuthRegister auth, Role role) {
+    private void saveUser(Long userId, AuthRegister auth, Role role) {
         User user = User.builder()
                 .firstName(auth.getFirstName())
                 .lastName(auth.getLastName())

@@ -41,9 +41,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AuthRegister authRegister,
-                                                        @CurrentUser User user) {
-        return ResponseEntity.ok(authService.register(user, authRegister));
+    public ResponseEntity<ApiResponse<String>> register(@Valid @RequestBody AuthRegister authRegister) {
+        return ResponseEntity.ok(authService.register(authRegister));
     }
 
     @Operation(summary = "Parolni update qilish")
