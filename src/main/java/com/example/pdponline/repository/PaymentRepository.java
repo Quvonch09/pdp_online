@@ -12,18 +12,31 @@ import java.util.List;
 
 public interface PaymentRepository extends JpaRepository<Payment,Long> {
 
-    @Query("SELECT p FROM Payment p " +
-            "LEFT JOIN PaymentModule pm on pm.payment.id = p.id " +
-            "LEFT JOIN Module m on pm.module.id = m.id " +
-            "WHERE p.payDate BETWEEN :startDate AND :endDate " +
-            "AND (:studentId IS NULL OR p.student.id = :studentId) " +
-            "AND (:payType IS NULL OR p.payType = :payType) " +
-            "AND (:status IS NULL OR p.status = :status) " +
-            "AND (:promoCode IS NULL OR (p.promoCode IS NOT NULL AND :promoCode = true) " +
-            "                       OR (p.promoCode IS NULL AND :promoCode = false)) " +
-            "AND (:startAmount IS NULL OR p.originalAmount >= :startAmount) " +
-            "AND (:endAmount IS NULL OR p.originalAmount <= :endAmount) " +
-            "AND (:moduleIds IS NULL OR m.id IN :moduleIds)")
+    @Query(value = """
+SELECT p.*
+FROM payment p
+         LEFT JOIN payment_modules pm ON pm.payment_id = p.id
+         LEFT JOIN promo_code pc ON p.promo_code_id = pc.id
+         LEFT JOIN module m ON pm.module_id = m.id
+WHERE (:startDate IS NULL OR :endDate IS NULL OR p.pay_date BETWEEN :startDate AND :endDate)
+  AND (:studentId IS NULL OR p.student_id = :studentId)
+  AND (:payType IS NULL OR p.pay_type = :payType)
+  AND (:status IS NULL OR p.status = :status)
+  AND (
+    :promoCode IS NULL OR
+    (:promoCode = true AND pc.id IS NOT NULL) OR
+    (:promoCode = false AND pc.id IS NULL)
+    )
+  AND (:startAmount IS NULL OR p.original_amount >= :startAmount)
+  AND (:endAmount IS NULL OR p.original_amount <= :endAmount)
+  AND (
+    :moduleIds IS NULL OR EXISTS (
+        SELECT 1 FROM payment_modules pm2
+                          JOIN module m2 ON pm2.module_id = m2.id
+        WHERE pm2.payment_id = p.id AND m2.id IN (:moduleIds)
+    )
+    )
+""", nativeQuery = true)
     List<Payment> findPayments(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
