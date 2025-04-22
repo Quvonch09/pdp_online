@@ -11,7 +11,7 @@ public record TaskDTO(
         String title,
         String description,
         Long lessonId,
-        List<Long> attachments,
+        List<String> attachments,
         LocalDateTime starTime,
         LocalDateTime ednTime
 ) {

@@ -1,5 +1,9 @@
 package com.example.pdponline.service;
 
+import com.example.pdponline.exception.JwtException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -23,9 +27,17 @@ public class RedisTokenService {
     }
 
     public boolean isTokenValid(Long deviceId, String token) {
-        String key = "device:" + deviceId;
-        String storedToken = redisTemplate.opsForValue().get(key);
-        return token.equals(storedToken);
+        try {
+            String key = "device:" + deviceId;
+            String storedToken = redisTemplate.opsForValue().get(key);
+            return token.equals(storedToken);
+        } catch (ExpiredJwtException e) {
+            throw new JwtException("JWT token has expired: " + e.getMessage());
+        } catch (SignatureException e) {
+            throw new JwtException("Invalid JWT signature: " + e.getMessage());
+        } catch (Exception e) {
+            throw new JwtException("Invalid JWT token: " + e.getMessage());
+        }
     }
 }
 

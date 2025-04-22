@@ -2,6 +2,7 @@ package com.example.pdponline.payload;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Getter
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class DeviceInfoDTO {
+public class DeviceInfoDTO implements Serializable {
 
     private Long id;
 

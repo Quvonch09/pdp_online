@@ -17,16 +17,6 @@ public class JwtProvider {
     private Long ttl;
 
 
-    public String generateToken(String phoneNumber) {
-        long now = System.currentTimeMillis();
-        return Jwts.builder()
-                .setSubject(phoneNumber)
-                .setIssuedAt(new Date(now))
-                .setExpiration(new Date(now + ttl))
-                .signWith(SignatureAlgorithm.HS512, key)
-                .compact();
-    }
-
     public String generateToken(Map<String, Object> claims, String phoneNumber) {
         return Jwts.builder()
                 .setClaims(claims)

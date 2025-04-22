@@ -15,7 +15,7 @@ public class TaskReq {
     private String title;
     @NotBlank(message = "Task description bo'sh bo'lmasin")
     private String description;
-    private List<Long> filesId;
+    private List<String> filesUrl;
 
     @NotNull(message = "Lesson tanlanishi zarur")
     private Long lessonId;
