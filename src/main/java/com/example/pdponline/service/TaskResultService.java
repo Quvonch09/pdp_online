@@ -63,7 +63,7 @@ public class TaskResultService {
                 .student(student)
                 .task(task)
                 .ball(taskResultDTO.ball())
-                .success(taskResultDTO.ball() > 3)
+                .success(taskResultDTO.ball() > 6)
                 .build();
     }
 
