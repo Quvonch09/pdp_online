@@ -97,15 +97,6 @@ public class CourseService {
         return ApiResponse.successResponse(CourseMapper.toDto(course));
     }
 
-    public ApiResponse<?> getByActive(boolean active) {
-        List<Course> courses = courseRepository.findByActive(active);
-
-        if (courses.isEmpty())
-            throw RestException.restThrow(ResponseError.NOTFOUND("Kurslar"));
-
-        return ApiResponse.successResponse(CourseMapper.toDtoList(courses));
-    }
-
 //    @Async
 //    public CompletableFuture<Course> getCourseAsync(Long id) {
 //        return CompletableFuture.completedFuture(getCourseOrThrow(id));

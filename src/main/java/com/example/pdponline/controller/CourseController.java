@@ -59,14 +59,5 @@ public class CourseController {
     ){
         return ResponseEntity.ok(courseService.getCourse(id));
     }
-
-    @GetMapping("/active")
-    @Operation(summary = "SUPER_ADMIN ACTIVE bo'yicha kurslar")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<?> getByActive(
-            @RequestParam boolean active
-    ){
-        return ResponseEntity.ok(courseService.getByActive(active));
-    }
 }
 
