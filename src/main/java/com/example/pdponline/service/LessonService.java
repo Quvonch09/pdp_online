@@ -7,7 +7,6 @@ import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.LessonDTO;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.LessonReq;
-import com.example.pdponline.repository.LessonAttachmentRepository;
 import com.example.pdponline.repository.LessonRepository;
 import com.example.pdponline.repository.LessonTrackingRepository;
 import com.example.pdponline.repository.SectionRepository;
@@ -26,7 +25,6 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final SectionRepository sectionRepository;
     private final LessonTrackingRepository lessonTrackingRepository;
-    private final LessonAttachmentRepository lessonAttachmentRepository;
 
     @Transactional
     public ApiResponse<String> createLesson(LessonReq req) {
@@ -35,16 +33,10 @@ public class LessonService {
                 .name(req.name())
                 .description(req.description())
                 .section(section)
+                .imgUrls(req.imgUrls())
                 .active(true)
                 .build();
-        Lesson save = lessonRepository.save(lesson);
-
-        LessonAttachments lessonAttachments = LessonAttachments.builder()
-                .url(req.imgUrls())
-                .lesson(save)
-                .active(true)
-                .build();
-        lessonAttachmentRepository.save(lessonAttachments);
+        lessonRepository.save(lesson);
 
         return ApiResponse.successResponse("Successfully created lesson");
     }
@@ -57,26 +49,17 @@ public class LessonService {
         lesson.setName(req.name());
         lesson.setDescription(req.description());
         lesson.setSection(section);
-        Lesson save = lessonRepository.save(lesson);
-
-        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(save.getId());
-        byLessonId.setLesson(save);
-        byLessonId.setUrl(req.imgUrls());
-        lessonAttachmentRepository.save(byLessonId);
+        lesson.setImgUrls(req.imgUrls());
+        lessonRepository.save(lesson);
 
         return ApiResponse.successResponse("Successfully updated lesson");
     }
 
 
-    @Transactional
     public ApiResponse<String> deleteLesson(Long lessonId) {
         Lesson lesson = findLessonByIdOrElseThrow(lessonId);
         lesson.setActive(false);
         lessonRepository.save(lesson);
-
-        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lessonId);
-        byLessonId.setActive(false);
-        lessonAttachmentRepository.save(byLessonId);
         return ApiResponse.successResponse("Successfully deleted lesson");
     }
 
@@ -101,8 +84,7 @@ public class LessonService {
         for (Lesson lesson : lessons) {
             boolean isCompleted = completedLessonIds.contains(lesson.getId());
             boolean isOpen = isCompleted || nextOpenAllowed;
-
-            LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lesson.getId());
+            List<String> imgUrls = lessonRepository.findAllImgUrlByLessonId(lesson.getId());
 
             if (!isCompleted) {
                 nextOpenAllowed = false;
@@ -112,7 +94,7 @@ public class LessonService {
                             .name(lesson.getName())
                             .description(lesson.getDescription())
                             .sectionId(lesson.getSection().getId())
-                            .imgUrls(byLessonId.getUrl())
+                            .imgUrls(imgUrls)
                             .isOpen(isOpen)
                             .isComplete(isCompleted)
                             .active(lesson.isActive())
@@ -125,9 +107,9 @@ public class LessonService {
 
     public ApiResponse<LessonDTO> getLesson(Long id) {
         Lesson lesson = findLessonByIdOrElseThrow(id);
-        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lesson.getId());
+        List<String> imgUrls = lessonRepository.findAllImgUrlByLessonId(lesson.getId());
 
-        return ApiResponse.successResponse(LessonMapper.toLessonDTO(lesson, byLessonId.getUrl()));
+        return ApiResponse.successResponse(LessonMapper.toLessonDTO(lesson, imgUrls));
     }
 
     private Section findSectionByIdOrElseThrow(Long sectionId) {

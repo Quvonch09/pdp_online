@@ -31,6 +31,7 @@ public class AuthController {
     }
 
 
+    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     @Operation(summary = "Super Admin user qushish uchun")
     @PostMapping("/saveUser")
     public ResponseEntity<ApiResponse<?>> adminSaveUser(@CurrentUser User user,

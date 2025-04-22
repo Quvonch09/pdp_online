@@ -6,6 +6,8 @@ import jdk.jfr.Enabled;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -18,6 +20,9 @@ public class Lesson extends AbsEntity {
     private String name;
 
     private String description;
+
+    @ElementCollection
+    private List<String> imgUrls;
 
     @ManyToOne
     private Section section;
