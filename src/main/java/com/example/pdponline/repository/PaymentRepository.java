@@ -13,7 +13,7 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment,Long> {
 
     @Query(value = """
-SELECT p.*
+SELECT DISTINCT p.*
 FROM payment p
          LEFT JOIN payment_modules pm ON pm.payment_id = p.id
          LEFT JOIN promo_code pc ON p.promo_code_id = pc.id
@@ -26,16 +26,17 @@ WHERE (:startDate IS NULL OR :endDate IS NULL OR p.pay_date BETWEEN :startDate A
     :promoCode IS NULL OR
     (:promoCode = true AND pc.id IS NOT NULL) OR
     (:promoCode = false AND pc.id IS NULL)
-    )
+  )
   AND (:startAmount IS NULL OR p.original_amount >= :startAmount)
   AND (:endAmount IS NULL OR p.original_amount <= :endAmount)
   AND (
-    :moduleIds IS NULL OR EXISTS (
-        SELECT 1 FROM payment_modules pm2
-                          JOIN module m2 ON pm2.module_id = m2.id
-        WHERE pm2.payment_id = p.id AND m2.id IN (:moduleIds)
-    )
-    )
+    (COALESCE(:moduleIds) IS NULL OR EXISTS (
+        SELECT 1
+        FROM payment_modules pm2
+                 JOIN module m2 ON pm2.module_id = m2.id
+        WHERE pm2.payment_id = p.id AND m2.id = ANY(:moduleIds)
+    ))
+  )
 """, nativeQuery = true)
     List<Payment> findPayments(
             @Param("startDate") LocalDate startDate,
@@ -48,6 +49,7 @@ WHERE (:startDate IS NULL OR :endDate IS NULL OR p.pay_date BETWEEN :startDate A
             @Param("endAmount") Double endAmount,
             @Param("moduleIds") List<Long> moduleIds
     );
+
 
     @Query("SELECT COALESCE(SUM(p.paidAmount), 0) FROM Payment p WHERE p.status = :status")
     double getPaymentSum(@Param("status") PaymentStatus status);
