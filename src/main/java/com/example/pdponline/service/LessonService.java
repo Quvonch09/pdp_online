@@ -107,7 +107,7 @@ public class LessonService {
 
     public ApiResponse<LessonDTO> getLesson(Long id) {
         Lesson lesson = findLessonByIdOrElseThrow(id);
-        List<String> imgUrls = lessonRepository.findAllImgUrlByLessonId(lesson.getId());
+        List<String> imgUrls = lessonRepository.findAllImgUrlByLessonId(id);
 
         return ApiResponse.successResponse(LessonMapper.toLessonDTO(lesson, imgUrls));
     }

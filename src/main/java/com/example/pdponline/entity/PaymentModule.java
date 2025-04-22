@@ -15,7 +15,7 @@ public class PaymentModule extends AbsEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Payment payment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     private Module module;
 
     @Column(nullable = false)
