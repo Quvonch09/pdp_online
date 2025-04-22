@@ -1,6 +1,8 @@
 package com.example.pdponline.controller;
 
+import com.example.pdponline.entity.User;
 import com.example.pdponline.payload.req.ModuleReq;
+import com.example.pdponline.security.CurrentUser;
 import com.example.pdponline.service.ModuleService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +61,14 @@ public class ModuleController {
             @PathVariable Long id
     ){
         return ResponseEntity.ok(moduleService.getById(id));
+    }
+
+    @GetMapping("/my-modules")
+    @Operation(summary = "STUDENT User modullarini olish")
+    @PreAuthorize("hasRole('ROLE_STUDENT')")
+    public ResponseEntity<?> myModules(
+            @CurrentUser User user
+    ){
+        return ResponseEntity.ok(moduleService.boughtModules(user));
     }
 }

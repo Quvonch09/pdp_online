@@ -52,4 +52,6 @@ WHERE (:startDate IS NULL OR :endDate IS NULL OR p.pay_date BETWEEN :startDate A
     @Query("SELECT COALESCE(SUM(p.paidAmount), 0) FROM Payment p WHERE p.status = :status")
     double getPaymentSum(@Param("status") PaymentStatus status);
 
+    List<Payment> findByStudentId(Long studentId);
+
 }

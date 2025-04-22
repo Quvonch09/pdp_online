@@ -1,14 +1,17 @@
 package com.example.pdponline.service;
 
-import com.example.pdponline.entity.Course;
+import com.example.pdponline.entity.*;
 import com.example.pdponline.entity.Module;
 import com.example.pdponline.exception.RestException;
 import com.example.pdponline.mapper.ModuleMapper;
 import com.example.pdponline.payload.ApiResponse;
+import com.example.pdponline.payload.ModuleDto;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.ModuleReq;
 import com.example.pdponline.repository.CourseRepository;
 import com.example.pdponline.repository.ModuleRepository;
+import com.example.pdponline.repository.PaymentModuleRepository;
+import com.example.pdponline.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -25,6 +28,8 @@ public class ModuleService {
 
     private final ModuleRepository moduleRepository;
     private final CourseRepository courseRepository;
+    private final PaymentModuleRepository paymentModuleRepository;
+    private final PaymentRepository paymentRepository;
 
     @CacheEvict(value = "modules", allEntries = true)
     public ApiResponse<String> createModule(ModuleReq req) {
@@ -104,6 +109,32 @@ public class ModuleService {
         }
 
         return ApiResponse.successResponse(ModuleMapper.toDtoList(modules));
+    }
+
+    public ApiResponse<?> boughtModules(User user){
+        List<Payment> payments = paymentRepository.findByStudentId(user.getId());
+        if (payments.isEmpty()) {
+            log.warn("No payments found for user with id: {}", user.getId());
+            throw RestException.restThrow(ResponseError.NOTFOUND("Payment"));
+        }
+
+        List<PaymentModule> paymentModules = new java.util.ArrayList<>(List.of());
+        payments.forEach(payment -> {
+            paymentModules.addAll(paymentModuleRepository.findByPaymentId(payment.getId()));
+        });
+
+        if (paymentModules.isEmpty()) {
+            log.warn("User uchun modullar mavjud emas:: {}", user.getId());
+            throw RestException.restThrow(ResponseError.NOTFOUND("Sotib olingan modullar"));
+        }
+
+        List<ModuleDto> moduleDtos = List.of();
+        for (PaymentModule paymentModule : paymentModules) {
+            moduleDtos.add(ModuleMapper.toDto(paymentModule.getModule()));
+        }
+
+        log.info("User uchun mavjud modullar: {}", moduleDtos);
+        return ApiResponse.successResponse(moduleDtos);
     }
 
     @Cacheable(value = "modules", key = "#id")
