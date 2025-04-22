@@ -36,7 +36,7 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.updateCategory(id, req));
     }
 
-    @DeleteMapping("/change-status/{id}")
+    @PutMapping("/change-status/{id}")
     @Operation(summary = "ADMIN Kategoriya active/inactive qilish")
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<?> deleteCategory(
@@ -46,27 +46,13 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.changeActive(active, id));
     }
 
-    @GetMapping("/all")
-    @Operation(summary = "Barcha kategoriyalar")
-    public ResponseEntity<?> getAllCategory() {
-        return ResponseEntity.ok(categoryService.getAllCategory());
-    }
-
-    @GetMapping("/active")
-    @Operation(summary = "ADMIN Active bo'yicha kategoriyalar")
-    @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
-    public ResponseEntity<?> getActiveCategory(
-            @RequestParam boolean active
-    ) {
-        return ResponseEntity.ok(categoryService.getByActive(active));
-    }
-
-    @GetMapping("/type")
-    @Operation(summary = "Kategoriya turi bo'yicha kategoriyalar")
-    public ResponseEntity<?> getByType(
+    @GetMapping("/search")
+    @Operation(summary = "Categorylarni olish filtr asosida",description = "Barcha maydonlar null kelsa barcha categorylar qaytadi")
+    public ResponseEntity<?> search(
+            @RequestParam Boolean active,
             @RequestParam CategoryType type
     ){
-        return ResponseEntity.ok(categoryService.getByType(type));
+        return ResponseEntity.ok(categoryService.getCategories(active,type));
     }
 
     @GetMapping("/{id}")
