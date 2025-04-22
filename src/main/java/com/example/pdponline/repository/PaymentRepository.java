@@ -13,8 +13,6 @@ import java.util.List;
 public interface PaymentRepository extends JpaRepository<Payment,Long> {
 
     @Query("SELECT p FROM Payment p " +
-            "LEFT JOIN PaymentModule pm on pm.payment.id = p.id " +
-            "LEFT JOIN Module m on pm.module.id = m.id " +
             "WHERE p.payDate BETWEEN :startDate AND :endDate " +
             "AND (:studentId IS NULL OR p.student.id = :studentId) " +
             "AND (:payType IS NULL OR p.payType = :payType) " +
@@ -22,8 +20,7 @@ public interface PaymentRepository extends JpaRepository<Payment,Long> {
             "AND (:promoCode IS NULL OR (p.promoCode IS NOT NULL AND :promoCode = true) " +
             "                       OR (p.promoCode IS NULL AND :promoCode = false)) " +
             "AND (:startAmount IS NULL OR p.originalAmount >= :startAmount) " +
-            "AND (:endAmount IS NULL OR p.originalAmount <= :endAmount) " +
-            "AND (:moduleIds IS NULL OR m.id IN :moduleIds)")
+            "AND (:endAmount IS NULL OR p.originalAmount <= :endAmount) ")
     List<Payment> findPayments(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,

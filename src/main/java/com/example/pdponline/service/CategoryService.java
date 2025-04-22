@@ -16,6 +16,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -83,22 +85,13 @@ public class CategoryService {
         return ApiResponse.successResponse(CategoryMapper.toDto(mentorDtos, category));
     }
 
-    @Cacheable(value = "categories", key = "'all'")
-    public ApiResponse<?> getAllCategory() {
-        List<Category> categories = getNonEmptyCategoryList(categoryRepository.findAll());
-        return ApiResponse.successResponse(toDtoListWithMentors(categories));
-    }
+    public ApiResponse<?> getCategories(Boolean active,CategoryType type){
+        List<Category> foundCategories = categoryRepository.filterCategories(active,type.name());
+        if (foundCategories.isEmpty())
+            throw RestException.restThrow(ResponseError.NOTFOUND("Category"));
 
-    @Cacheable(value = "categories", key = "'active_' + #active")
-    public ApiResponse<?> getByActive(boolean active) {
-        List<Category> categories = getNonEmptyCategoryList(categoryRepository.findByActive(active));
-        return ApiResponse.successResponse(toDtoListWithMentors(categories));
-    }
-
-    @Cacheable(value = "categories", key = "'type_' + #type")
-    public ApiResponse<?> getByType(CategoryType type) {
-        List<Category> categories = getNonEmptyCategoryList(categoryRepository.findByCategoryType(type));
-        return ApiResponse.successResponse(toDtoListWithMentors(categories));
+        log.info("Kategorylar topildi: {}",foundCategories.size());
+        return ApiResponse.successResponse(toDtoListWithMentors(foundCategories));
     }
 
 //    @Async
@@ -106,7 +99,7 @@ public class CategoryService {
 //        return CompletableFuture.supplyAsync(() -> buildMentorDtos(mentors));
 //    }
 
-    protected List<MentorDto> buildMentorDtos(List<User> mentors) {
+    private List<MentorDto> buildMentorDtos(List<User> mentors) {
         return mentors.stream().map(mentor ->
                 MentorDto.builder()
                         .id(mentor.getId())
@@ -130,13 +123,7 @@ public class CategoryService {
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("Category")));
     }
 
-    private List<Category> getNonEmptyCategoryList(List<Category> list) {
-        if (list.isEmpty())
-            throw RestException.restThrow(ResponseError.NOTFOUND("Category"));
-        return list;
-    }
-
-    protected List<CategoryDto> toDtoListWithMentors(List<Category> categories) {
+    private List<CategoryDto> toDtoListWithMentors(List<Category> categories) {
         return categories.stream()
                 .map(category -> CategoryMapper.toDto(buildMentorDtos(category.getMentors()), category))
                 .collect(Collectors.toList());
