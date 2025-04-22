@@ -1,18 +1,17 @@
 package com.example.pdponline.service;
 
-import com.example.pdponline.entity.Lesson;
-import com.example.pdponline.entity.LessonTracking;
-import com.example.pdponline.entity.Section;
-import com.example.pdponline.entity.User;
+import com.example.pdponline.entity.*;
 import com.example.pdponline.exception.RestException;
 import com.example.pdponline.mapper.LessonMapper;
 import com.example.pdponline.payload.ApiResponse;
 import com.example.pdponline.payload.LessonDTO;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.LessonReq;
+import com.example.pdponline.repository.LessonAttachmentRepository;
 import com.example.pdponline.repository.LessonRepository;
 import com.example.pdponline.repository.LessonTrackingRepository;
 import com.example.pdponline.repository.SectionRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +26,9 @@ public class LessonService {
     private final LessonRepository lessonRepository;
     private final SectionRepository sectionRepository;
     private final LessonTrackingRepository lessonTrackingRepository;
+    private final LessonAttachmentRepository lessonAttachmentRepository;
 
+    @Transactional
     public ApiResponse<String> createLesson(LessonReq req) {
         Section section = findSectionByIdOrElseThrow(req.sectionId());
         Lesson lesson = Lesson.builder()
@@ -36,24 +37,46 @@ public class LessonService {
                 .section(section)
                 .active(true)
                 .build();
-        lessonRepository.save(lesson);
+        Lesson save = lessonRepository.save(lesson);
+
+        LessonAttachments lessonAttachments = LessonAttachments.builder()
+                .url(req.imgUrls())
+                .lesson(save)
+                .active(true)
+                .build();
+        lessonAttachmentRepository.save(lessonAttachments);
+
         return ApiResponse.successResponse("Successfully created lesson");
     }
 
+
+    @Transactional
     public ApiResponse<String> updateLesson(LessonReq req, Long id) {
         Lesson lesson = findLessonByIdOrElseThrow(id);
         Section section = findSectionByIdOrElseThrow(req.sectionId());
         lesson.setName(req.name());
         lesson.setDescription(req.description());
         lesson.setSection(section);
-        lessonRepository.save(lesson);
+        Lesson save = lessonRepository.save(lesson);
+
+        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(save.getId());
+        byLessonId.setLesson(save);
+        byLessonId.setUrl(req.imgUrls());
+        lessonAttachmentRepository.save(byLessonId);
+
         return ApiResponse.successResponse("Successfully updated lesson");
     }
 
+
+    @Transactional
     public ApiResponse<String> deleteLesson(Long lessonId) {
         Lesson lesson = findLessonByIdOrElseThrow(lessonId);
         lesson.setActive(false);
         lessonRepository.save(lesson);
+
+        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lessonId);
+        byLessonId.setActive(false);
+        lessonAttachmentRepository.save(byLessonId);
         return ApiResponse.successResponse("Successfully deleted lesson");
     }
 
@@ -79,6 +102,8 @@ public class LessonService {
             boolean isCompleted = completedLessonIds.contains(lesson.getId());
             boolean isOpen = isCompleted || nextOpenAllowed;
 
+            LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lesson.getId());
+
             if (!isCompleted) {
                 nextOpenAllowed = false;
             }
@@ -87,6 +112,7 @@ public class LessonService {
                             .name(lesson.getName())
                             .description(lesson.getDescription())
                             .sectionId(lesson.getSection().getId())
+                            .imgUrls(byLessonId.getUrl())
                             .isOpen(isOpen)
                             .isComplete(isCompleted)
                             .active(lesson.isActive())
@@ -99,8 +125,9 @@ public class LessonService {
 
     public ApiResponse<LessonDTO> getLesson(Long id) {
         Lesson lesson = findLessonByIdOrElseThrow(id);
+        LessonAttachments byLessonId = lessonAttachmentRepository.findByLessonId(lesson.getId());
 
-        return ApiResponse.successResponse(LessonMapper.toLessonDTO(lesson));
+        return ApiResponse.successResponse(LessonMapper.toLessonDTO(lesson, byLessonId.getUrl()));
     }
 
     private Section findSectionByIdOrElseThrow(Long sectionId) {

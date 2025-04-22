@@ -1,11 +1,13 @@
 package com.example.pdponline.payload.req;
 
-import com.example.pdponline.entity.Section;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.List;
 
 public record LessonReq(
         @NotBlank(message = "Lesson name bo'sh bolmasligi kerak") String name,
         String description,
-        Long sectionId
+        Long sectionId,
+        List<String> imgUrls
 ) {
 }

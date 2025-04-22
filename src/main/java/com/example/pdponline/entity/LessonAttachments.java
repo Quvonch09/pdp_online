@@ -22,4 +22,6 @@ public class LessonAttachments {
     @ManyToOne
     private Lesson lesson;
 
+    private boolean active;
+
 }
