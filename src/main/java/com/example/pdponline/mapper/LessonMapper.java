@@ -12,7 +12,7 @@ public class LessonMapper {
                 .id(lesson.getId())
                 .name(lesson.getName())
                 .description(lesson.getDescription())
-                .imgUrls(imgUrls)
+                .imgUrls(lesson.getImgUrls())
                 .active(lesson.isActive())
                 .sectionId(lesson.getSection().getId())
                 .build();
