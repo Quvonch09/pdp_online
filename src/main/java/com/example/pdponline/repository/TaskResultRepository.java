@@ -24,5 +24,7 @@ public interface TaskResultRepository extends JpaRepository<TaskResult,Long> {
             WHERE
                 tr.student_id = :studentId and l.id = :lessonId
             """,nativeQuery = true)
-    List<TaskResult> findByStudentIdAndLesson_Id(Long studentId, Long lessonId);
+    List<TaskResult> findAllByStudentIdAndLesson_Id(Long studentId, Long lessonId);
+
+//    List<TaskResult> findAllByStudent_IdAndLesson_Id(Long studentId, Long lessonId);
 }
