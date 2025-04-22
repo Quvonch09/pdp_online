@@ -42,7 +42,6 @@ public class SupabaseService {
     private final RestTemplate restTemplate;
 
 
-    @Async
     @CacheEvict(value = "files", allEntries = true)
     public String uploadFile(MultipartFile file, String fileName) throws IOException {
         String uniqueName = LocalDateTime.now() + "_" + fileName;

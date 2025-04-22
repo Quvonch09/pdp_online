@@ -15,7 +15,7 @@ public record TaskResultDTO(
         @NotNull(message = "Task id bo'lishi kerak")
         Long TaskId,
         @Min(value = 0, message = "ball 0 dan kichkina bo'lmasiligi kerak")
-        @Max(value = 5, message = "ball 5 dan kattta bo'lmasligi kerak")
+        @Max(value = 10, message = "ball 10 dan kattta bo'lmasligi kerak")
         int ball
 ) {
 }

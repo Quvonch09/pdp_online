@@ -1,6 +1,9 @@
 package com.example.pdponline.security;
 
+import com.example.pdponline.entity.DeviceInfo;
 import com.example.pdponline.exception.RestException;
+import com.example.pdponline.repository.DeviceInfoRepository;
+import com.example.pdponline.service.RedisTokenService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,19 +31,20 @@ import java.util.Arrays;
 @CrossOrigin
 public class JwtFilter extends OncePerRequestFilter {
 
+    private final RedisTokenService redisTokenService;
     @Value("${security.whitelist}")
     private String[] whiteList;
 
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
+    private final DeviceInfoRepository deviceInfoRepository;
     public String sessionToken;
 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException
-    {
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String requestPath = request.getServletPath();
 
@@ -54,9 +58,9 @@ public class JwtFilter extends OncePerRequestFilter {
         if (authorization != null && authorization.startsWith("Bearer ")) {
             String token = authorization.substring(7);
             sessionToken = token;
-
+            Long deviceId = jwtProvider.extractDeviceId(token);
             try {
-                if (jwtProvider.isTokenValid(token)) {
+                if (redisTokenService.isTokenValid(deviceId,token)) {
                     String phoneNumber = jwtProvider.getPhoneNumberFromToken(token);
                     UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber);
 
@@ -73,7 +77,9 @@ public class JwtFilter extends OncePerRequestFilter {
                 throw RestException.restThrow(e.getMessage(), HttpStatus.UNAUTHORIZED);
             }
         }
-        doFilter(request, response, filterChain);
+
+        // ❗ MUHIM: to‘g‘ri filterChain metodini chaqirish
+        filterChain.doFilter(request, response);
     }
 
 
