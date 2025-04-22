@@ -38,7 +38,7 @@ public class PromoCodeService {
 
         String code;
         do {
-            code = generateRandomString().toString();
+            code = generateRandomString();
         } while (promoCodeRepository.existsByPromoCode(code));
 
         PromoCode promoCode = PromoCode.builder()
@@ -104,13 +104,12 @@ public class PromoCodeService {
      * tasodifiy string promocode generatsiya qilish
      * @return 10 talik string
      */
-    @Async
-    public CompletableFuture<String> generateRandomString() {
+    private String generateRandomString() {
         StringBuilder sb = new StringBuilder(10);
         for (int i = 0; i < 15; i++) {
             int index = random.nextInt(CHARACTERS.length());
             sb.append(CHARACTERS.charAt(index));
         }
-        return CompletableFuture.completedFuture(sb.toString());
+        return sb.toString();
     }
 }

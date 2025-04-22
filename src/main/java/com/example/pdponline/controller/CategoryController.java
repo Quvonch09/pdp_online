@@ -49,8 +49,8 @@ public class CategoryController {
     @GetMapping("/search")
     @Operation(summary = "Categorylarni olish filtr asosida",description = "Barcha maydonlar null kelsa barcha categorylar qaytadi")
     public ResponseEntity<?> search(
-            @RequestParam Boolean active,
-            @RequestParam CategoryType type
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) CategoryType type
     ){
         return ResponseEntity.ok(categoryService.getCategories(active,type));
     }

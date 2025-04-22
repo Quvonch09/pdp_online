@@ -47,9 +47,10 @@ public class CourseController {
     @GetMapping("/category/{id}")
     @Operation(summary = "Kategoriya bo'yicha kurslar")
     public ResponseEntity<?> getByCategory(
-            @PathVariable Long id
+            @PathVariable Long id,
+            @RequestParam boolean active
     ){
-        return ResponseEntity.ok(courseService.getByCategory(id, true));
+        return ResponseEntity.ok(courseService.getByCategory(id, active));
     }
 
     @GetMapping("/{id}")

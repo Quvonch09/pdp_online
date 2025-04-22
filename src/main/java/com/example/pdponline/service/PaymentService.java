@@ -5,7 +5,11 @@ import com.example.pdponline.entity.Module;
 import com.example.pdponline.entity.enums.PayType;
 import com.example.pdponline.entity.enums.PaymentStatus;
 import com.example.pdponline.exception.RestException;
+import com.example.pdponline.mapper.ModuleMapper;
+import com.example.pdponline.mapper.PaymentMapper;
 import com.example.pdponline.payload.ApiResponse;
+import com.example.pdponline.payload.ModuleDto;
+import com.example.pdponline.payload.PaymentDTO;
 import com.example.pdponline.payload.ResponseError;
 import com.example.pdponline.payload.req.PaymentReq;
 import com.example.pdponline.repository.ModuleRepository;
@@ -17,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -87,15 +92,19 @@ public class PaymentService {
      * @param status response statusi
      * @return oxirgi nusxa payment
      */
-    public ApiResponse<?> verifyPayment(Long paymentId,PaymentStatus status){
+    public ApiResponse<?> verifyPayment(Long paymentId, PaymentStatus status) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> RestException.restThrow(ResponseError.NOTFOUND("Payment")));
 
         payment.setStatus(status);
-        log.info("Payment status o'zgartirildi");
         paymentRepository.save(payment);
+        log.info("Payment status o'zgartirildi: {}", paymentId);
 
-        return ApiResponse.successResponse(payment);
+        List<ModuleDto> moduleDtos = paymentModuleRepository.findByPaymentId(paymentId).stream()
+                .map(pm -> ModuleMapper.toDto(pm.getModule()))
+                .toList();
+
+        return ApiResponse.successResponse(PaymentMapper.toDto(moduleDtos, payment));
     }
 
     /**
@@ -122,14 +131,23 @@ public class PaymentService {
             Double endAmount,
             List<Long> moduleIds
     ) {
-        List<Payment> payments = paymentRepository.findPayments(startDate, endDate, type, status, studentId, promoCode, startAmount, endAmount, moduleIds);
+        List<Payment> payments = paymentRepository.findPayments(
+                startDate, endDate, type, status, studentId, promoCode, startAmount, endAmount, moduleIds
+        );
 
         if (payments.isEmpty()) {
-            log.error("To'lovlar topilmadi");
-            throw RestException.restThrow(ResponseError.NOTFOUND("To'lovlar"));
+            log.warn("Paymentlar mavjud emas");
+            throw RestException.restThrow(ResponseError.NOTFOUND("Payment"));
         }
 
-        log.info("To'lovlar olindi");
-        return ApiResponse.successResponse(payments);
+        List<PaymentDTO> paymentDTOS = payments.stream().map(payment -> {
+            List<ModuleDto> moduleDtos = paymentModuleRepository.findByPaymentId(payment.getId()).stream()
+                    .map(pm -> ModuleMapper.toDto(pm.getModule()))
+                    .toList();
+            return PaymentMapper.toDto(moduleDtos, payment);
+        }).toList();
+
+        log.info("Paymentlar topildi: {}",paymentDTOS.size() );
+        return ApiResponse.successResponse(paymentDTOS);
     }
 }

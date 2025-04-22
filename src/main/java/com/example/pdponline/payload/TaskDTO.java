@@ -3,6 +3,7 @@ package com.example.pdponline.payload;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Builder
@@ -12,7 +13,7 @@ public record TaskDTO(
         String description,
         Long lessonId,
         List<String> attachments,
-        LocalDateTime starTime,
-        LocalDateTime ednTime
+        LocalTime starTime,
+        LocalTime ednTime
 ) {
 }
