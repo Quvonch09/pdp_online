@@ -113,7 +113,7 @@ public class CategoryService {
 
     private List<User> getMentorsByIds(List<Long> ids) {
         List<User> mentors = userRepository.findAllById(ids);
-        if (mentors.isEmpty())
+        if (mentors.size() != ids.size())
             throw RestException.restThrow(ResponseError.NOTFOUND("Mentorlar"));
         return mentors;
     }

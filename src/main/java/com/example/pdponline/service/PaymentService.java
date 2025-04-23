@@ -139,6 +139,7 @@ public class PaymentService {
                 startDate, endDate, type, status,
                 studentId, promoCode, startAmount, endAmount, moduleIds);
 
+        // Optional: Sort by date DESC
         Sort sort = Sort.by(Sort.Direction.DESC, "payDate");
         List<Payment> payments = paymentRepository.findAll(spec, sort);
 
@@ -157,4 +158,5 @@ public class PaymentService {
         log.info("Paymentlar topildi: {}", paymentDTOS.size());
         return ApiResponse.successResponse(paymentDTOS);
     }
+
 }
