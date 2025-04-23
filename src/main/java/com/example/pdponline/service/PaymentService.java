@@ -1,6 +1,7 @@
 package com.example.pdponline.service;
 
-import com.example.pdponline.entity.*;
+import
+        com.example.pdponline.entity.*;
 import com.example.pdponline.entity.Module;
 import com.example.pdponline.entity.enums.PayType;
 import com.example.pdponline.entity.enums.PaymentStatus;
@@ -136,8 +137,7 @@ public class PaymentService {
     ) {
         Specification<Payment> spec = PaymentSpecification.filter(
                 startDate, endDate, type, status,
-                studentId, promoCode, startAmount, endAmount, moduleIds
-        );
+                studentId, promoCode, startAmount, endAmount, moduleIds);
 
         List<Payment> payments = paymentRepository.findAll((Sort) spec);
 
