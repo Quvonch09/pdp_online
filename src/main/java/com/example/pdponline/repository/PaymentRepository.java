@@ -4,13 +4,14 @@ import com.example.pdponline.entity.Payment;
 import com.example.pdponline.entity.enums.PayType;
 import com.example.pdponline.entity.enums.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public interface PaymentRepository extends JpaRepository<Payment,Long> {
+public interface PaymentRepository extends JpaRepository<Payment,Long>, JpaSpecificationExecutor<Payment> {
 
     @Query(value = """
 SELECT DISTINCT p.*

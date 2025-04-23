@@ -4,6 +4,7 @@ import com.example.pdponline.entity.enums.CategoryType;
 import com.example.pdponline.payload.req.CategoryReq;
 import com.example.pdponline.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,7 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<?> addCategory(
             @RequestParam CategoryType type,
-            @RequestBody CategoryReq req
+            @RequestBody @Valid CategoryReq req
     ) {
         return ResponseEntity.ok(categoryService.addCategory(type, req));
     }
@@ -31,7 +32,7 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_SUPER_ADMIN')")
     public ResponseEntity<?> updateCategory(
             @PathVariable Long id,
-            @RequestBody CategoryReq req
+            @RequestBody @Valid CategoryReq req
     ) {
         return ResponseEntity.ok(categoryService.updateCategory(id, req));
     }
