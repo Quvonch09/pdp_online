@@ -139,7 +139,9 @@ public class PaymentService {
                 studentId, promoCode, startAmount, endAmount, moduleIds
         );
 
-        List<Payment> payments = paymentRepository.findAll((Sort) spec);
+        // Optional: Sort by date DESC
+        Sort sort = Sort.by(Sort.Direction.DESC, "payDate");
+        List<Payment> payments = paymentRepository.findAll(spec, sort);
 
         if (payments.isEmpty()) {
             log.warn("Paymentlar mavjud emas");
@@ -156,4 +158,5 @@ public class PaymentService {
         log.info("Paymentlar topildi: {}", paymentDTOS.size());
         return ApiResponse.successResponse(paymentDTOS);
     }
+
 }

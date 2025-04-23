@@ -3,6 +3,7 @@ package com.example.pdponline.controller;
 import com.example.pdponline.payload.req.SectionReq;
 import com.example.pdponline.service.SectionService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +20,7 @@ public class SectionController {
     @Operation(summary = "SUPER_ADMIN,TEACHER Section yaratish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<?> createSection(
-            @RequestBody SectionReq req
+            @RequestBody @Valid SectionReq req
     ){
         return ResponseEntity.ok(service.createSection(req));
     }

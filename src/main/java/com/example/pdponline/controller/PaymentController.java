@@ -7,6 +7,7 @@ import com.example.pdponline.payload.req.PaymentReq;
 import com.example.pdponline.security.CurrentUser;
 import com.example.pdponline.service.PaymentService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +26,7 @@ public class PaymentController {
     @Operation(summary = "STUDENT Module sotib olish")
     @PreAuthorize("hasRole('ROLE_STUDENT')")
     public ResponseEntity<?> buyModule(
-            @RequestBody PaymentReq req,
+            @RequestBody @Valid PaymentReq req,
             @RequestParam PayType type,
             @CurrentUser User user
     ){

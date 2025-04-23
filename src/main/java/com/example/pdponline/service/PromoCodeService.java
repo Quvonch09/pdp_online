@@ -106,7 +106,7 @@ public class PromoCodeService {
      */
     private String generateRandomString() {
         StringBuilder sb = new StringBuilder(10);
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 10; i++) {
             int index = random.nextInt(CHARACTERS.length());
             sb.append(CHARACTERS.charAt(index));
         }
