@@ -139,7 +139,8 @@ public class PaymentService {
                 startDate, endDate, type, status,
                 studentId, promoCode, startAmount, endAmount, moduleIds);
 
-        List<Payment> payments = paymentRepository.findAll((Sort) spec);
+        Sort sort = Sort.by(Sort.Direction.DESC, "payDate");
+        List<Payment> payments = paymentRepository.findAll(spec, sort);
 
         if (payments.isEmpty()) {
             log.warn("Paymentlar mavjud emas");
