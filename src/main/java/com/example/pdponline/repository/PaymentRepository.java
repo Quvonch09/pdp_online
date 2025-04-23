@@ -31,19 +31,17 @@ WHERE (:startDate IS NULL OR :endDate IS NULL OR p.pay_date BETWEEN :startDate A
   AND (:startAmount IS NULL OR p.original_amount >= :startAmount)
   AND (:endAmount IS NULL OR p.original_amount <= :endAmount)
   AND (
-    (COALESCE(:moduleIds) IS NULL OR EXISTS (
-        SELECT 1
-        FROM payment_modules pm2
-                 JOIN module m2 ON pm2.module_id = m2.id
-        WHERE pm2.payment_id = p.id AND m2.id = ANY(:moduleIds)
-    ))
-  )
+    :moduleIds IS NULL OR (
+        p.id =  (select p1.id from payment p1 join public.payment_modules pm2 on p1.id = pm2.payment_id
+                        where pm2.module_id in (:moduleIds))
+    )
+)
 """, nativeQuery = true)
     List<Payment> findPayments(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
-            @Param("payType") PayType payType,
-            @Param("status") PaymentStatus status,
+            @Param("payType") String payType,
+            @Param("status") String status,
             @Param("studentId") Long studentId,
             @Param("promoCode") Boolean promoCode,
             @Param("startAmount") Double startAmount,
