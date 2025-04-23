@@ -133,7 +133,8 @@ public class PaymentService {
             List<Long> moduleIds
     ) {
         List<Payment> payments = paymentRepository.findPayments(
-                startDate, endDate, type.name(), status.name(), studentId, promoCode, startAmount, endAmount, moduleIds
+                startDate, endDate, type != null ? type.name() : null, status != null ? status.name() : null,
+                studentId, promoCode, startAmount, endAmount, moduleIds
         );
 
         if (payments.isEmpty()) {
