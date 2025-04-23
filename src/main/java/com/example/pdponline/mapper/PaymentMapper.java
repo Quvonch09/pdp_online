@@ -12,7 +12,7 @@ public class PaymentMapper {
         return PaymentDTO.builder()
                 .id(payment.getId())
                 .date(payment.getCreatedAt())
-                .promoCode(payment.getPromoCode().getPromoCode())
+                .promoCode(payment.getPromoCode() != null ? payment.getPromoCode().getPromoCode() : null)
                 .type(payment.getPayType())
                 .userId(payment.getStudent().getId())
                 .status(payment.getStatus())
