@@ -103,6 +103,12 @@ public class AuthService {
     }
 
     private void saveUser(Long userId, AuthRegister auth, Role role) {
+        boolean b = userRepository.existsByPhoneNumberAndEnabledTrue(auth.getPhoneNumber());
+
+        if (b){
+            throw RestException.restThrow(ResponseError.ALREADY_EXIST("Phone Number"));
+        }
+
         User user = User.builder()
                 .firstName(auth.getFirstName())
                 .lastName(auth.getLastName())

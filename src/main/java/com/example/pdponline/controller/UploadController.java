@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.concurrent.CompletableFuture;
+
 @RestController
 @RequestMapping("/upload")
 @RequiredArgsConstructor
@@ -15,13 +17,13 @@ public class UploadController {
     private final SupabaseService supabaseService;
 
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<String> upload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<CompletableFuture<String>> upload(@RequestParam("file") MultipartFile file) {
         try {
-            String fileUrl = supabaseService.uploadFile(file, file.getOriginalFilename());
+            CompletableFuture<String> fileUrl = supabaseService.uploadFile(file, file.getOriginalFilename());
             return ResponseEntity.ok(fileUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Xatolik: " + e.getMessage());
+                    .body(CompletableFuture.completedFuture("Xatolik: " + e.getMessage()));
         }
     }
 
@@ -40,14 +42,14 @@ public class UploadController {
 
 
     @PutMapping(value = "/update", consumes = {"multipart/form-data"})
-    public ResponseEntity<String> update(@RequestParam("file") MultipartFile file, @RequestParam String path) {
+    public ResponseEntity<CompletableFuture<String>> update(@RequestParam("file") MultipartFile file, @RequestParam String path) {
 
         try {
-            String fileUrl = supabaseService.updateFile(path, file);
+            CompletableFuture<String> fileUrl = supabaseService.updateFile(path, file);
             return ResponseEntity.ok(fileUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Xatolik: " + e.getMessage());
+                    .body(CompletableFuture.completedFuture("Xatolik: " + e.getMessage()));
         }
     }
 

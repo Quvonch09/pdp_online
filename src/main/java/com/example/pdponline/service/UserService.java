@@ -49,6 +49,11 @@ public class UserService {
 
     public ApiResponse<?> updateUser(HttpServletRequest request, User user, ResUser resUser){
 
+        boolean b = userRepository.existsByPhoneNumberAndEnabledTrue(resUser.getPhoneNumber());
+        if (b){
+            throw RestException.restThrow(ResponseError.ALREADY_EXIST("PhoneNumber"));
+        }
+
         boolean phoneChanged = !user.getPhoneNumber().equals(resUser.getPhoneNumber());
 
 

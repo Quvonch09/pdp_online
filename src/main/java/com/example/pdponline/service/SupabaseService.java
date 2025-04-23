@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.UUID;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @RequiredArgsConstructor
@@ -42,15 +42,16 @@ public class SupabaseService {
     private final RestTemplate restTemplate;
 
 
+    @Async
     @CacheEvict(value = "files", allEntries = true)
-    public String uploadFile(MultipartFile file, String fileName) throws IOException {
+    public CompletableFuture<String> uploadFile(MultipartFile file, String fileName) throws IOException {
         String uniqueName = LocalDateTime.now() + "_" + fileName;
         String filePath = "uploads/" + uniqueName;
 
         String uploadUrl = String.format("%s/storage/v1/object/%s/%s", supabaseUrl, bucketName, filePath);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType(file.getContentType()));
+        headers.setContentType(MediaType.parseMediaType(Objects.requireNonNull(file.getContentType())));
         headers.set("Authorization", "Bearer " + supabaseApiKey);
 
         HttpEntity<byte[]> entity = new HttpEntity<>(file.getBytes(), headers);
@@ -60,7 +61,7 @@ public class SupabaseService {
         );
 
         if (response.getStatusCode().is2xxSuccessful()) {
-            return supabaseUrl + "/storage/v1/object/public/" + bucketName + "/" + filePath;
+            return CompletableFuture.completedFuture(supabaseUrl + "/storage/v1/object/public/" + bucketName + "/" + filePath);
         } else {
             throw RestException.restThrow("Fayl yuklashda xatolik: " + response.getStatusCode());
         }
@@ -70,7 +71,7 @@ public class SupabaseService {
 
 
     @CacheEvict(value = "files", allEntries = true)
-    public String updateFile(String oldUrl, MultipartFile newFile) {
+    public CompletableFuture<String> updateFile(String oldUrl, MultipartFile newFile) {
         try {
             String basePublicUrl = supabaseUrl + "/storage/v1/object/public/" + bucketName + "/";
             if (!oldUrl.startsWith(basePublicUrl)) {
@@ -78,14 +79,14 @@ public class SupabaseService {
             }
 
             if (!deleteFile(oldUrl)) {
-                return "false";
+                return CompletableFuture.completedFuture("false");
             }
 
 
             return uploadFile(newFile, newFile.getOriginalFilename());
         } catch (Exception e) {
             e.printStackTrace();
-            return "false";
+            return CompletableFuture.completedFuture("false");
         }
     }
 

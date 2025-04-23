@@ -86,7 +86,7 @@ public class CategoryService {
     }
 
     public ApiResponse<?> getCategories(Boolean active,CategoryType type){
-        List<Category> foundCategories = categoryRepository.filterCategories(active,type.name());
+        List<Category> foundCategories = categoryRepository.filterCategories(active,type != null ? type.name() : null);
         if (foundCategories.isEmpty())
             throw RestException.restThrow(ResponseError.NOTFOUND("Category"));
 

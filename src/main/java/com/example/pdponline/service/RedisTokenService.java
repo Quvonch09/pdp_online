@@ -1,8 +1,8 @@
 package com.example.pdponline.service;
 
 import com.example.pdponline.exception.JwtException;
+import com.example.pdponline.repository.DeviceInfoRepository;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -15,6 +15,7 @@ import java.time.Duration;
 public class RedisTokenService {
 
     private final RedisTemplate<String, String> redisTemplate;
+    private final DeviceInfoRepository deviceInfoRepository;
 
     public void saveToken(Long deviceId, String token, Duration ttl) {
         String key = "device:" + deviceId;
@@ -32,6 +33,7 @@ public class RedisTokenService {
             String storedToken = redisTemplate.opsForValue().get(key);
             return token.equals(storedToken);
         } catch (ExpiredJwtException e) {
+            deviceInfoRepository.deleteById(deviceId);
             throw new JwtException("JWT token has expired: " + e.getMessage());
         } catch (SignatureException e) {
             throw new JwtException("Invalid JWT signature: " + e.getMessage());
