@@ -50,7 +50,7 @@ public class ModuleController {
     @Operation(summary = "Kurs bo'yicha modullar")
     public ResponseEntity<?> getByCourse(
             @PathVariable Long id,
-            @RequestParam boolean active
+            @RequestParam boolean active    
     ){
         return ResponseEntity.ok(moduleService.getByCourse(id,active));
     }

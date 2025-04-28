@@ -2,6 +2,7 @@ package com.example.pdponline.entity;
 
 import com.example.pdponline.entity.template.AbsEntity;
 import jakarta.persistence.Entity;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @Builder
 @Getter
 @Setter
-public class StudentValidModules extends AbsEntity {
+public class StudentValidModules  extends AbsEntity {
 
     @NotNull(message = "module id null bo'lishi mumkin emas!")
     private Long moduleId;

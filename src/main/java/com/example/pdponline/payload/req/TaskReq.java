@@ -2,6 +2,7 @@ package com.example.pdponline.payload.req;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.cglib.core.Local;
@@ -21,7 +22,12 @@ public class TaskReq {
 
     @NotNull(message = "Lesson tanlanishi zarur")
     private Long lessonId;
-    private LocalTime startTime;
 
-    private LocalTime endTime;
+    @NotBlank(message = "Bo'sh bo'lmasin")
+    @Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d)$", message = "Faqat soat va minut formatida (HH:mm) kiriting")
+    private String startTime;
+
+    @Pattern(regexp = "^([01]\\d|2[0-3]):([0-5]\\d)$", message = "Faqat soat va minut formatida (HH:mm) kiriting")
+    @NotBlank(message = "Bo'sh bo'lmasin")
+    private String endTime;
 }

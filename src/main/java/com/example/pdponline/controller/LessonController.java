@@ -46,7 +46,7 @@ public class LessonController {
     }
 
     @GetMapping("/section/{id}")
-    @Operation(summary = "Section orqali lessonlarni olish")
+    @Operation(summary = "Section orqali  lessonlarni olish")
     public ResponseEntity<ApiResponse<List<LessonDTO>>> getLessons(@CurrentUser User user, @PathVariable Long id) {
         return ResponseEntity.ok(lessonService.getLessonsBySection(user,id));
     }
@@ -57,9 +57,9 @@ public class LessonController {
         return ResponseEntity.ok(lessonService.getLesson(id));
     }
 
-    @PostMapping("/{lessonId}/finished")
+    @PostMapping("/{moduleId}/{lessonId}/finished")
     @Operation()
-    public ResponseEntity<ApiResponse<String>> finishLesson(@CurrentUser User user, @PathVariable Long lessonId) {
-        return ResponseEntity.ok(lessonTrackingService.finishLesson(user,lessonId));
+    public ResponseEntity<ApiResponse<String>> finishLesson(@CurrentUser User user, @PathVariable Long lessonId, @PathVariable Long moduleId) {
+        return ResponseEntity.ok(lessonTrackingService.finishLesson(user,lessonId,moduleId));
     }
 }
