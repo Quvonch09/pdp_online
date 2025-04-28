@@ -86,7 +86,7 @@ public class CategoryService {
     }
 
     public ApiResponse<?> getCategories(Boolean active,CategoryType type){
-        List<Category> foundCategories = categoryRepository.filterCategories(active,type.name());
+        List<Category> foundCategories = categoryRepository.filterCategories(active,type != null ? type.name() : null);
         if (foundCategories.isEmpty())
             throw RestException.restThrow(ResponseError.NOTFOUND("Category"));
 
@@ -113,7 +113,7 @@ public class CategoryService {
 
     private List<User> getMentorsByIds(List<Long> ids) {
         List<User> mentors = userRepository.findAllById(ids);
-        if (mentors.isEmpty())
+        if (mentors.size() != ids.size())
             throw RestException.restThrow(ResponseError.NOTFOUND("Mentorlar"));
         return mentors;
     }

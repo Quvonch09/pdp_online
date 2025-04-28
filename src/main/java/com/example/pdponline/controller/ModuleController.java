@@ -5,6 +5,7 @@ import com.example.pdponline.payload.req.ModuleReq;
 import com.example.pdponline.security.CurrentUser;
 import com.example.pdponline.service.ModuleService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,7 +22,7 @@ public class ModuleController {
     @Operation(summary = "SUPER_ADMIN,TEACHER Module yaratish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<?> createModule(
-            @RequestBody ModuleReq req
+            @RequestBody @Valid ModuleReq req
     ){
         return ResponseEntity.ok(moduleService.createModule(req));
     }

@@ -11,12 +11,12 @@ import java.util.Optional;
 
 public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
 
-    @Query(value = """
-    SELECT * FROM promo_code p
+    @Query("""
+    SELECT p FROM PromoCode p
     WHERE (:active IS NULL OR p.active = :active)
-      AND (:code IS NULL OR LOWER(p.promo_code) LIKE LOWER(CONCAT('%', :code, '%')))
-      AND (:expiryDate IS NULL OR p.expiry_date = :expiryDate)
-""", nativeQuery = true)
+      AND (:code IS NULL OR LOWER(p.promoCode) LIKE LOWER(CONCAT('%', :code, '%')))
+      AND (:expiryDate IS NULL OR p.expiryDate = :expiryDate)
+""")
     List<PromoCode> search(@Param("active") Boolean active,
                            @Param("code") String code,
                            @Param("expiryDate") LocalDate expiryDate);

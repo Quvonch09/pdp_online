@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u where u.phoneNumber = ?1 and u.enabled = true")
     User getUserAndEnabledTrue(String phone);
 
+    boolean existsByPhoneNumberAndEnabledTrue(String phone);
+
 
     Optional<User> findByPhoneNumber(String phoneNumber);
 

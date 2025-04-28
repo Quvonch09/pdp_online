@@ -3,6 +3,7 @@ package com.example.pdponline.controller;
 import com.example.pdponline.payload.req.CourseReq;
 import com.example.pdponline.service.CourseService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,7 +20,7 @@ public class CourseController {
     @Operation(summary = "SUPER_ADMIN,TEACHER kurs yaratish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<?> createCourse(
-            @RequestBody CourseReq req
+            @RequestBody @Valid CourseReq req
     ){
         return ResponseEntity.ok(courseService.createCourse(req));
     }

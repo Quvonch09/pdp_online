@@ -1,6 +1,7 @@
 package com.example.pdponline.service;
 
-import com.example.pdponline.entity.*;
+import
+        com.example.pdponline.entity.*;
 import com.example.pdponline.entity.Module;
 import com.example.pdponline.entity.enums.PayType;
 import com.example.pdponline.entity.enums.PaymentStatus;
@@ -18,6 +19,8 @@ import com.example.pdponline.repository.PaymentRepository;
 import com.example.pdponline.repository.PromoCodeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
@@ -120,6 +123,7 @@ public class PaymentService {
      * @param moduleIds modullar bo'yicha
      * @return payment lar listi
      */
+    @Transactional
     public ApiResponse<?> getPayments(
             LocalDate startDate,
             LocalDate endDate,
@@ -131,9 +135,13 @@ public class PaymentService {
             Double endAmount,
             List<Long> moduleIds
     ) {
-        List<Payment> payments = paymentRepository.findPayments(
-                startDate, endDate, type, status, studentId, promoCode, startAmount, endAmount, moduleIds
-        );
+        Specification<Payment> spec = PaymentSpecification.filter(
+                startDate, endDate, type, status,
+                studentId, promoCode, startAmount, endAmount, moduleIds);
+
+        // Optional: Sort by date DESC
+        Sort sort = Sort.by(Sort.Direction.DESC, "payDate");
+        List<Payment> payments = paymentRepository.findAll(spec, sort);
 
         if (payments.isEmpty()) {
             log.warn("Paymentlar mavjud emas");
@@ -147,7 +155,8 @@ public class PaymentService {
             return PaymentMapper.toDto(moduleDtos, payment);
         }).toList();
 
-        log.info("Paymentlar topildi: {}",paymentDTOS.size() );
+        log.info("Paymentlar topildi: {}", paymentDTOS.size());
         return ApiResponse.successResponse(paymentDTOS);
     }
+
 }
