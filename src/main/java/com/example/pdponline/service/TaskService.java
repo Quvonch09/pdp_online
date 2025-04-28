@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +31,14 @@ public class TaskService {
                 RestException.restThrow(ResponseError.NOTFOUND("Lesson")));
 
 
+
         Task task = Task.builder()
                 .title(taskreq.getTitle())
                 .description(taskreq.getDescription())
                 .lesson(lesson)
                 .attachments(taskreq.getFilesUrl())
-                .startTime(taskreq.getStartTime())
-                .endTime(taskreq.getEndTime())
+                .startTime(LocalTime.parse( taskreq.getStartTime()))
+                .endTime(LocalTime.parse( taskreq.getEndTime()))
                 .build();
 
         taskRepository.save(task);
@@ -51,9 +53,10 @@ public class TaskService {
         if (task.getTitle() != null && !task.getTitle().equals(taskReq.getTitle())) {
             task.setTitle(taskReq.getTitle());
         }
+
         task.setDescription(taskReq.getDescription());
-        task.setStartTime(taskReq.getStartTime());
-        task.setEndTime(taskReq.getEndTime());
+        task.setStartTime(LocalTime.parse(taskReq.getStartTime()));
+        task.setEndTime(LocalTime.parse(taskReq.getEndTime()));
         task.setAttachments(taskReq.getFilesUrl() != null ? taskReq.getFilesUrl() : null);
         taskRepository.save(task);
         return null;

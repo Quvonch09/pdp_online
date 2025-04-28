@@ -21,13 +21,14 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping("/save")
-    @Operation(summary = "Task qo'shish")
+    @Operation(summary = "Task qo'shish ROLE_SUPER_ADMIN','ROLE_TEACHER")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<ApiResponse<String>> saveTask(@Valid @RequestBody TaskReq taskReq) {
         return ResponseEntity.ok(taskService.saveTask(taskReq));
     }
 
     @PutMapping("/update/{id}")
+    @Operation(summary = "ROLE_SUPER_ADMIN , ROLE_TEACHER  update qilish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<ApiResponse<String>> updateTask(@Valid @RequestBody TaskReq taskReq, @PathVariable Long id) {
         return ResponseEntity.ok(taskService.updateTask(id, taskReq));
@@ -46,6 +47,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @Operation(summary = "ROLE_SUPER_ADMIN , ROLE_TEACHER delete qilish")
     @PreAuthorize("hasAnyRole('ROLE_SUPER_ADMIN','ROLE_TEACHER')")
     public ResponseEntity<ApiResponse<String>> deleteTask(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.deleteTask(id));
